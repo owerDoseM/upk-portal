@@ -1,9 +1,9 @@
-const CACHE_NAME='upk-portal-v7';
+const CACHE_NAME='upk-portal-v8';
 const ASSETS=[
   './',
   './index.html',
-  './style.css?v=7',
-  './app.js?v=7',
+  './style.css?v=8',
+  './app.js?v=8',
   './manifest.json',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js'
