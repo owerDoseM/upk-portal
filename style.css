@@ -66,3 +66,180 @@ select,input{background:var(--card);color:var(--ink);border-color:var(--line)}
 .scan-table th{background:var(--card-subtle);position:sticky;top:0;font-weight:700}
 .scan-table tr:hover td{background:var(--brand-light)}
 @media(max-width:700px){.ai-config-grid{grid-template-columns:1fr}.ai-actions{display:grid;grid-template-columns:1fr}.ai-actions button{width:100%}}
+
+
+/* ==========================================================================
+   Bento Grid 2.0 & Spotlight Glow (SaaS / Linear / Raycast Style)
+   ========================================================================== */
+.bento-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.bento-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
+}
+.bento-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(36, 87, 214, 0.12);
+}
+.bento-icon {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--brand-light);
+  flex-shrink: 0;
+}
+.bento-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.bento-val {
+  display: block;
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+/* Spotlight Border Glow for all modern cards */
+.spotlight-card {
+  position: relative;
+}
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    280px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    rgba(36, 87, 214, 0.45),
+    transparent 65%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 2;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+body.dark .spotlight-card::before {
+  background: radial-gradient(
+    280px circle at var(--mouse-x, -999px) var(--mouse-y, -999px),
+    rgba(91, 130, 232, 0.7),
+    transparent 65%
+  );
+}
+
+/* SaaS HUD in Sidebar */
+.hud-telemetry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.hud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+}
+.hud-dot.live {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulseLive 2s infinite;
+}
+.hud-dot.ai {
+  background: #6366f1;
+  box-shadow: 0 0 8px #6366f1;
+}
+.hud-dot.github {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+@keyframes pulseLive {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Floating Toast Notification System (Vercel Style) */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 12px 18px;
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+  font-weight: 600;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  transition: transform 0.25s var(--ease-out), opacity 0.25s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.toast-item.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+.toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+.toast-success .toast-dot { background: #10b981; }
+.toast-error .toast-dot { background: #ef4444; }
+@media(max-width:700px){
+  .bento-telemetry-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bento-stat-card { padding: 12px; }
+  .bento-val { font-size: 13px; }
+  .toast-container { right: 12px; bottom: 12px; left: 12px; }
+}
