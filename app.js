@@ -164,7 +164,7 @@ async function loadRemoteSchedule() {
       refreshGroupOptions();
       renderSchedule();
       renderRooms();
-      updateScheduleNoteBanner();
+      updateScheduleNoteBanner();updateBentoTelemetry();
       if ($('#editorGroup')) editorRows();
     }
   } catch (_) {
@@ -302,8 +302,8 @@ initSchoolBell();
 $('#freeRoomsBtn').onclick=event=>{filterOnlyFree=!filterOnlyFree;event.currentTarget.classList.toggle('active',filterOnlyFree);event.currentTarget.setAttribute('aria-pressed',String(filterOnlyFree));renderRooms()};
 $('#groupSelect').addEventListener('change',()=>{focusCurrentOnRender=selectedDay===new Date().getDay()-1});
 $$('.nav-item').forEach(b=>b.onclick=()=>{if(b.dataset.section==='schedule-editor'&&!editorUnlocked){const expected=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Введите пароль администратора:')!==expected){alert('Неверный пароль.');return}editorUnlocked=true}$$('.nav-item').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.section').forEach(s=>s.classList.toggle('active',s.id===b.dataset.section));closeSidebar();window.scrollTo({top:0,behavior:'smooth'});if(b.dataset.section==='summary')summary()});
-$('#groupSelect').onchange=()=>{saveState({target:$('#groupSelect')});syncTitleGroup();renderSchedule();summary()};$$('#profileSelect,#profileSelectMobile').forEach(e=>e.onchange=event=>{$('#profileSelect').value=event.target.value;$('#profileSelectMobile').value=event.target.value;localStorage.setItem(storageKey+':profileSelect',event.target.value);applyProfile(event.target.value)});$('#roomSearch').oninput=e=>{saveState(e);renderRooms()};$('#buildingFilter').onchange=e=>{saveState(e);renderRooms()};$$('input,select').forEach(e=>{e.addEventListener('input',e=>{saveState(e);allCalc()});e.addEventListener('change',e=>{saveState(e);allCalc()})});$('#printBtn').onclick=()=>window.print();$('#csvBtn').onclick=downloadCsv;$('#copyBtn').onclick=copySummary;$('#resetBtn').onclick=()=>{Object.keys(localStorage).filter(k=>k.startsWith(storageKey+':')).forEach(k=>localStorage.removeItem(k));location.reload()};$('#menuBtn').onclick=()=>{$('#sidebar').classList.toggle('open');$('#sidebarOverlay').classList.toggle('visible',$('#sidebar').classList.contains('open'))};$('#sidebarOverlay').onclick=closeSidebar;$('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem(storageKey+':theme',document.body.classList.contains('dark')?'dark':'light');syncChartTheme()};$('#qrBtn').onclick=openQr;$('#closeQrBtn').onclick=closeQr;$('#qrModal').onclick=e=>{if(e.target.id==='qrModal')closeQr()};$('#copyLinkBtn').onclick=()=>{const done=()=>{$('#copyLinkBtn').textContent='Ссылка скопирована';setTimeout(()=>$('#copyLinkBtn').textContent='Скопировать ссылку',1500)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done).catch(()=>{fallbackCopy(location.href);done()});else{fallbackCopy(location.href);done()}};$('#editorGroup').onchange=editorRows;$('#editorDay').onchange=editorRows;$('#addGroupBtn').onclick=addEditorGroup;$('#saveScheduleBtn').onclick=saveEditor;$('#exportScheduleBtn').onclick=exportScheduleCode;$('#resetScheduleBtn').onclick=resetCustomSchedule;$('#importScheduleBtn').onclick=importSchedule;$('#changePinBtn').onclick=()=>{const oldPin=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Текущий пароль:')!==oldPin){alert('Неверный текущий пароль.');return;}const next=prompt('Новый пароль:');if(next&&next.trim().length>=4){localStorage.setItem('upk_editor_pin',next.trim());$('#editorStatus').textContent='Пароль успешно изменён.'}else alert('Пароль должен содержать минимум 4 символа.')};$('#copyScheduleCodeBtn').onclick=()=>{const copy=navigator.clipboard?.writeText($('#scheduleCode').value);if(copy)copy.then(()=>$('#editorStatus').textContent='Код расписания скопирован в буфер.').catch(()=>{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'});else{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'}};
-$('#calendarExportBtn').onclick=exportScheduleCalendar;$('#tomorrowBtn').onclick=selectTomorrow;$('#printTitleBtn').onclick=printTitle;$('#gradeExcellent').oninput=calcGrades;$('#gradeGood').oninput=calcGrades;$('#gradeSatisfactory').oninput=calcGrades;$('#addDeadlineBtn').onclick=addDeadline;$('#clearCompletedBtn').onclick=clearCompletedDeadlines;loadCustomSchedule();restoreState();initEditor();initMethodology();initInstallPrompt();syncTitleGroup();calcGrades();loadDeadlines();if(localStorage.getItem(storageKey+':theme')==='dark'){$('#themeBtn').click()}clock();setInterval(clock,1000);renderSchedule();renderRooms();allCalc();initAiScanner();loadRemoteSchedule();registerServiceWorker();
+$('#groupSelect').onchange=()=>{saveState({target:$('#groupSelect')});syncTitleGroup();renderSchedule();summary();updateBentoTelemetry();initSpotlight();};$$('#profileSelect,#profileSelectMobile').forEach(e=>e.onchange=event=>{$('#profileSelect').value=event.target.value;$('#profileSelectMobile').value=event.target.value;localStorage.setItem(storageKey+':profileSelect',event.target.value);applyProfile(event.target.value)});$('#roomSearch').oninput=e=>{saveState(e);renderRooms()};$('#buildingFilter').onchange=e=>{saveState(e);renderRooms()};$$('input,select').forEach(e=>{e.addEventListener('input',e=>{saveState(e);allCalc()});e.addEventListener('change',e=>{saveState(e);allCalc()})});$('#printBtn').onclick=()=>window.print();$('#csvBtn').onclick=downloadCsv;$('#copyBtn').onclick=copySummary;$('#resetBtn').onclick=()=>{Object.keys(localStorage).filter(k=>k.startsWith(storageKey+':')).forEach(k=>localStorage.removeItem(k));location.reload()};$('#menuBtn').onclick=()=>{$('#sidebar').classList.toggle('open');$('#sidebarOverlay').classList.toggle('visible',$('#sidebar').classList.contains('open'))};$('#sidebarOverlay').onclick=closeSidebar;$('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem(storageKey+':theme',document.body.classList.contains('dark')?'dark':'light');syncChartTheme()};$('#qrBtn').onclick=openQr;$('#closeQrBtn').onclick=closeQr;$('#qrModal').onclick=e=>{if(e.target.id==='qrModal')closeQr()};$('#copyLinkBtn').onclick=()=>{const done=()=>{$('#copyLinkBtn').textContent='Ссылка скопирована';setTimeout(()=>$('#copyLinkBtn').textContent='Скопировать ссылку',1500)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done).catch(()=>{fallbackCopy(location.href);done()});else{fallbackCopy(location.href);done()}};$('#editorGroup').onchange=editorRows;$('#editorDay').onchange=editorRows;$('#addGroupBtn').onclick=addEditorGroup;$('#saveScheduleBtn').onclick=saveEditor;$('#exportScheduleBtn').onclick=exportScheduleCode;$('#resetScheduleBtn').onclick=resetCustomSchedule;$('#importScheduleBtn').onclick=importSchedule;$('#changePinBtn').onclick=()=>{const oldPin=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Текущий пароль:')!==oldPin){alert('Неверный текущий пароль.');return;}const next=prompt('Новый пароль:');if(next&&next.trim().length>=4){localStorage.setItem('upk_editor_pin',next.trim());$('#editorStatus').textContent='Пароль успешно изменён.'}else alert('Пароль должен содержать минимум 4 символа.')};$('#copyScheduleCodeBtn').onclick=()=>{const copy=navigator.clipboard?.writeText($('#scheduleCode').value);if(copy)copy.then(()=>$('#editorStatus').textContent='Код расписания скопирован в буфер.').catch(()=>{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'});else{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'}};
+$('#calendarExportBtn').onclick=exportScheduleCalendar;$('#tomorrowBtn').onclick=selectTomorrow;$('#printTitleBtn').onclick=printTitle;$('#gradeExcellent').oninput=calcGrades;$('#gradeGood').oninput=calcGrades;$('#gradeSatisfactory').oninput=calcGrades;$('#addDeadlineBtn').onclick=addDeadline;$('#clearCompletedBtn').onclick=clearCompletedDeadlines;loadCustomSchedule();restoreState();initEditor();initMethodology();initInstallPrompt();syncTitleGroup();calcGrades();loadDeadlines();if(localStorage.getItem(storageKey+':theme')==='dark'){$('#themeBtn').click()}clock();setInterval(clock,1000);renderSchedule();renderRooms();allCalc();updateBentoTelemetry();initSpotlight();initAiScanner();loadRemoteSchedule();registerServiceWorker();
 let aiSelectedFiles = [];
 let aiParsedResult = null;
 function initAiScanner() {
@@ -540,4 +540,76 @@ function initAiScanner() {
       publishBtn.disabled = false;
     }
   };
+}
+
+
+// --- Bento Grid 2.0 & Spotlight Telemetry Engine ---
+function initSpotlight() {
+  const cards = document.querySelectorAll('.card, .room-card, .schedule-card, .metric, .bento-stat-card, .method-card, .module-card');
+  cards.forEach(card => {
+    if (!card.classList.contains('spotlight-card')) card.classList.add('spotlight-card');
+    card.onpointermove = e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+    };
+  });
+}
+
+function showToast(text, type = 'info') {
+  let box = document.getElementById('toastContainer');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'toastContainer';
+    box.className = 'toast-container';
+    document.body.appendChild(box);
+  }
+  const toast = document.createElement('div');
+  toast.className = 'toast-item toast-' + type;
+  toast.innerHTML = '<span class="toast-dot"></span><span>' + escapeHtml(text) + '</span>';
+  box.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3200);
+}
+
+function updateBentoTelemetry() {
+  const groupSelect = $('#groupSelect');
+  const groupBadge = $('#bentoGroupBadge');
+  const countBadge = $('#bentoLessonsCount');
+  const statusBadge = $('#bentoCallStatus');
+  const modeBadge = $('#bentoScheduleMode');
+
+  if (groupBadge && groupSelect) {
+    groupBadge.textContent = groupSelect.value || '—';
+  }
+
+  if (countBadge) {
+    const curGroup = groupSelect?.value;
+    const curDay = days[selectedDay];
+    const lessons = schedule[curGroup]?.[curDay] || [];
+    const active = lessons.filter(l => l[0] || l[1] || l[2]);
+    countBadge.textContent = active.length > 0 ? (active.length + ' пар(ы)') : 'Выходной';
+  }
+
+  if (statusBadge) {
+    const lessonStatus = $('#lessonStatus');
+    if (lessonStatus && lessonStatus.textContent.trim()) {
+      statusBadge.textContent = lessonStatus.textContent.replace(/\s+/g, ' ').slice(0, 32);
+    } else {
+      statusBadge.textContent = 'Вне занятий';
+    }
+  }
+
+  if (modeBadge) {
+    if (scheduleMeta && scheduleMeta.note) {
+      modeBadge.textContent = 'Актуальные замены';
+      modeBadge.style.color = 'var(--brand)';
+    } else {
+      modeBadge.textContent = 'Семестровое';
+      modeBadge.style.color = 'var(--ink)';
+    }
+  }
 }
