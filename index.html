@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json?v=37">
   <title>Цифровой портал студента УПК</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=39">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body class="dark">
@@ -111,34 +111,25 @@
         <span>Система Быстрых Платежей</span>
       </div>
       <h2 id="donateModalTitle">Поддержать развитие портала</h2>
-      <p class="muted">Перевод без комиссии через СБП из Т-Банка, Сбера или любого банка РФ на развитие студенческого портала УПК.</p>
+      <p class="muted">Мгновенный перевод без комиссии через СБП из Т-Банка, Сбера или любого банка РФ.</p>
     </div>
 
     <div class="donate-methods">
-      <div class="donate-method-card">
-        <div class="donate-method-title">
-          <span class="method-icon">⚡</span>
-          <div>
-            <b>Перевод через СБП (0% комиссии)</b>
-            <small class="muted">Мгновенно из Т-Банка, Сбера или любого банка РФ</small>
+      <div class="donate-sbp-details">
+        <div class="sbp-data-row sbp-phone-row">
+          <span>Номер для СБП:</span>
+          <div class="sbp-phone-action">
+            <strong id="donatePhoneText">+7 (991) 353-63-72</strong>
+            <button id="copyPhoneBtn" class="copy-chip" type="button" title="Скопировать телефон">📋 Копировать</button>
           </div>
         </div>
-        <div class="donate-sbp-details">
-          <div class="sbp-data-row sbp-phone-row">
-            <span>Номер для СБП:</span>
-            <div class="sbp-phone-action">
-              <strong id="donatePhoneText">+7 (991) 353-63-72</strong>
-              <button id="copyPhoneBtn" class="copy-chip" type="button" title="Скопировать телефон">📋 Копировать</button>
-            </div>
-          </div>
-          <div class="sbp-data-row">
-            <span>Банк:</span>
-            <strong id="donateBankText">Т-Банк / Сбер</strong>
-          </div>
-          <div class="sbp-data-row">
-            <span>Получатель:</span>
-            <strong id="donateRecipientText">Арсен Петросян Юрьевич</strong>
-          </div>
+        <div class="sbp-data-row">
+          <span>Банк:</span>
+          <strong id="donateBankText">Т-Банк / Сбер</strong>
+        </div>
+        <div class="sbp-data-row">
+          <span>Получатель:</span>
+          <strong id="donateRecipientText">Арсен Петросян Юрьевич</strong>
         </div>
       </div>
     </div>
@@ -148,5 +139,5 @@
     </p>
   </div>
 </div>
-<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=38"></script>
+<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=39"></script>
 </body></html>
