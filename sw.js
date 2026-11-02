@@ -1,11 +1,17 @@
-const CACHE_NAME='upk-portal-v34';
+const CACHE_NAME='upk-portal-v35';
 const ASSETS=[
   './',
   './index.html',
-  './style.css?v=34',
-  './app.js?v=34',
+  './style.css?v=35',
+  './app.js?v=35',
   './schedule.json',
   './manifest.json',
+  './favicon.ico',
+  './icon.svg',
+  './icon-32.png',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js',
   'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js'
 ];
