@@ -1,3 +1,160 @@
+
+function initDonation() {
+  const donateBtn = $('#donateBtn');
+  const donateModal = $('#donateModal');
+  const closeBtn = $('#closeDonateBtn');
+  if (!donateBtn || !donateModal) return;
+
+  function syncDonateDetails() {
+    const phone = localStorage.getItem('upk_portal:donate_phone') || '+7 (900) 000-00-00';
+    const bank = localStorage.getItem('upk_portal:donate_bank') || 'Т-Банк (Тинькофф) / Сбер';
+    const recipient = localStorage.getItem('upk_portal:donate_recipient') || 'Студенческий совет УПК';
+    const link = localStorage.getItem('upk_portal:donate_link') || '';
+
+    const phoneEl = $('#donatePhoneText');
+    const bankEl = $('#donateBankText');
+    const recipientEl = $('#donateRecipientText');
+    const cardLinkBtn = $('#donateCardLinkBtn');
+    const sbpBtn = $('#donateSbpLinkBtn');
+
+    if (phoneEl) phoneEl.textContent = phone;
+    if (bankEl) bankEl.textContent = bank;
+    if (recipientEl) recipientEl.textContent = recipient;
+
+    const cleanPhone = phone.replace(/[^\d+]/g, '');
+
+    if (sbpBtn) {
+      if (link) {
+        sbpBtn.href = link;
+        sbpBtn.target = '_blank';
+        sbpBtn.rel = 'noopener';
+        sbpBtn.onclick = null;
+      } else {
+        sbpBtn.removeAttribute('target');
+        sbpBtn.href = 'tel:' + cleanPhone;
+        sbpBtn.onclick = (e) => {
+          const onDone = () => {
+            showToast('✓ Номер телефона для СБП скопирован!');
+          };
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(cleanPhone).then(onDone).catch(() => {
+              fallbackCopy(cleanPhone);
+              onDone();
+            });
+          } else {
+            fallbackCopy(cleanPhone);
+            onDone();
+          }
+        };
+      }
+    }
+
+    if (cardLinkBtn) {
+      if (link) {
+        cardLinkBtn.href = link;
+        cardLinkBtn.onclick = null;
+      } else {
+        cardLinkBtn.href = '#';
+        cardLinkBtn.onclick = (e) => {
+          e.preventDefault();
+          showToast('Укажите ссылку на сбор средств в панели администратора');
+        };
+      }
+    }
+
+    const admPhone = $('#adminDonatePhone');
+    const admBank = $('#adminDonateBank');
+    const admRecipient = $('#adminDonateRecipient');
+    const admLink = $('#adminDonateLink');
+
+    if (admPhone && !admPhone.value) admPhone.value = localStorage.getItem('upk_portal:donate_phone') || '';
+    if (admBank && !admBank.value) admBank.value = localStorage.getItem('upk_portal:donate_bank') || '';
+    if (admRecipient && !admRecipient.value) admRecipient.value = localStorage.getItem('upk_portal:donate_recipient') || '';
+    if (admLink && !admLink.value) admLink.value = localStorage.getItem('upk_portal:donate_link') || '';
+  }
+
+  function openDonateModal() {
+    syncDonateDetails();
+    donateModal.hidden = false;
+  }
+
+  function closeDonateModal() {
+    donateModal.hidden = true;
+  }
+
+  donateBtn.onclick = openDonateModal;
+  if (closeBtn) closeBtn.onclick = closeDonateModal;
+  donateModal.onclick = (e) => {
+    if (e.target.id === 'donateModal') closeDonateModal();
+  };
+
+  const presetBtns = $$('#donatePresets .donate-preset-btn');
+  const customInput = $('#donateCustomAmount');
+
+  presetBtns.forEach(btn => {
+    btn.onclick = () => {
+      presetBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (customInput) customInput.value = btn.dataset.amount;
+    };
+  });
+
+  if (customInput) {
+    customInput.oninput = () => {
+      presetBtns.forEach(b => {
+        b.classList.toggle('active', b.dataset.amount === customInput.value.trim());
+      });
+    };
+  }
+
+  const copyPhoneBtn = $('#copyPhoneBtn');
+  if (copyPhoneBtn) {
+    copyPhoneBtn.onclick = () => {
+      const phone = localStorage.getItem('upk_portal:donate_phone') || '+7 (900) 000-00-00';
+      const clean = phone.replace(/[^\d+]/g, '');
+      const onDone = () => {
+        showToast('✓ Номер телефона для СБП скопирован!');
+        copyPhoneBtn.textContent = '✓ Скопировано';
+        setTimeout(() => { copyPhoneBtn.textContent = '📋 Копировать'; }, 1800);
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(clean).then(onDone).catch(() => {
+          fallbackCopy(clean);
+          onDone();
+        });
+      } else {
+        fallbackCopy(clean);
+        onDone();
+      }
+    };
+  }
+
+  const saveDonateBtn = $('#saveDonateSettingsBtn');
+  if (saveDonateBtn) {
+    saveDonateBtn.onclick = () => {
+      const p = $('#adminDonatePhone')?.value.trim();
+      const b = $('#adminDonateBank')?.value.trim();
+      const r = $('#adminDonateRecipient')?.value.trim();
+      const l = $('#adminDonateLink')?.value.trim();
+
+      if (p) localStorage.setItem('upk_portal:donate_phone', p);
+      if (b) localStorage.setItem('upk_portal:donate_bank', b);
+      if (r) localStorage.setItem('upk_portal:donate_recipient', r);
+      if (l) localStorage.setItem('upk_portal:donate_link', l);
+
+      syncDonateDetails();
+      const statusEl = $('#adminDonateStatus');
+      if (statusEl) {
+        statusEl.textContent = 'Реквизиты пожертвований успешно сохранены!';
+        setTimeout(() => { statusEl.textContent = ''; }, 3000);
+      }
+      showToast('✓ Реквизиты СБП сохранены');
+    };
+  }
+
+  syncDonateDetails();
+}
+
 const DEFAULT_ADMIN_PASSWORD = 'hpixotJfbBlFlD8YOhrfMHDXWZJ9RP14LgAujpKszIJ';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const days=['Пн','Вт','Ср','Чт','Пт','Сб'];
@@ -382,7 +539,7 @@ $('#freeRoomsBtn').onclick=event=>{filterOnlyFree=!filterOnlyFree;event.currentT
 $('#groupSelect').addEventListener('change',()=>{focusCurrentOnRender=selectedDay===new Date().getDay()-1});
 $$('.nav-item').forEach(b=>b.onclick=()=>{if(b.dataset.section==='schedule-editor'&&!editorUnlocked){const expected=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Введите пароль администратора:')!==expected){alert('Неверный пароль.');return}editorUnlocked=true}$$('.nav-item').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.section').forEach(s=>s.classList.toggle('active',s.id===b.dataset.section));closeSidebar();window.scrollTo({top:0,behavior:'smooth'});if(b.dataset.section==='summary')summary()});
 $('#groupSelect').onchange=()=>{saveState({target:$('#groupSelect')});syncTitleGroup();renderSchedule();summary();updateBentoTelemetry();initSpotlight();};$$('#profileSelect,#profileSelectMobile').forEach(e=>e.onchange=event=>{$('#profileSelect').value=event.target.value;$('#profileSelectMobile').value=event.target.value;localStorage.setItem(storageKey+':profileSelect',event.target.value);applyProfile(event.target.value)});$('#roomSearch').oninput=e=>{saveState(e);renderRooms()};$('#buildingFilter').onchange=e=>{saveState(e);renderRooms()};$$('input,select').forEach(e=>{e.addEventListener('input',e=>{saveState(e);allCalc()});e.addEventListener('change',e=>{saveState(e);allCalc()})});$('#printBtn').onclick=()=>window.print();$('#csvBtn').onclick=downloadCsv;$('#copyBtn').onclick=copySummary;$('#resetBtn').onclick=()=>{Object.keys(localStorage).filter(k=>k.startsWith(storageKey+':')).forEach(k=>localStorage.removeItem(k));location.reload()};$('#menuBtn').onclick=()=>{$('#sidebar').classList.toggle('open');$('#sidebarOverlay').classList.toggle('visible',$('#sidebar').classList.contains('open'))};$('#sidebarOverlay').onclick=closeSidebar;$('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem(storageKey+':theme',document.body.classList.contains('dark')?'dark':'light');syncChartTheme()};$('#qrBtn').onclick=openQr;$('#closeQrBtn').onclick=closeQr;$('#qrModal').onclick=e=>{if(e.target.id==='qrModal')closeQr()};$('#copyLinkBtn').onclick=()=>{const done=()=>{$('#copyLinkBtn').textContent='Ссылка скопирована';setTimeout(()=>$('#copyLinkBtn').textContent='Скопировать ссылку',1500)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done).catch(()=>{fallbackCopy(location.href);done()});else{fallbackCopy(location.href);done()}};$('#editorGroup').onchange=editorRows;$('#editorDay').onchange=editorRows;$('#addGroupBtn').onclick=addEditorGroup;$('#saveScheduleBtn').onclick=saveEditor;$('#exportScheduleBtn').onclick=exportScheduleCode;$('#resetScheduleBtn').onclick=resetCustomSchedule;$('#importScheduleBtn').onclick=importSchedule;$('#changePinBtn').onclick=()=>{const oldPin=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Текущий пароль:')!==oldPin){alert('Неверный текущий пароль.');return;}const next=prompt('Новый пароль:');if(next&&next.trim().length>=4){localStorage.setItem('upk_editor_pin',next.trim());$('#editorStatus').textContent='Пароль успешно изменён.'}else alert('Пароль должен содержать минимум 4 символа.')};$('#copyScheduleCodeBtn').onclick=()=>{const copy=navigator.clipboard?.writeText($('#scheduleCode').value);if(copy)copy.then(()=>$('#editorStatus').textContent='Код расписания скопирован в буфер.').catch(()=>{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'});else{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'}};
-$('#calendarExportBtn').onclick=exportScheduleCalendar;$('#tomorrowBtn').onclick=selectTomorrow;$('#printTitleBtn').onclick=printTitle;$('#gradeExcellent').oninput=calcGrades;$('#gradeGood').oninput=calcGrades;$('#gradeSatisfactory').oninput=calcGrades;$('#addDeadlineBtn').onclick=addDeadline;$('#clearCompletedBtn').onclick=clearCompletedDeadlines;loadCustomSchedule();restoreState();initEditor();initMethodology();initInstallPrompt();syncTitleGroup();calcGrades();loadDeadlines();if(localStorage.getItem(storageKey+':theme')==='light'){document.body.classList.remove('dark')}else{document.body.classList.add('dark')}clock();setInterval(clock,1000);renderSchedule();renderRooms();allCalc();updateBentoTelemetry();initSpotlight();initAiScanner();loadRemoteSchedule();registerServiceWorker();
+$('#calendarExportBtn').onclick=exportScheduleCalendar;$('#tomorrowBtn').onclick=selectTomorrow;$('#printTitleBtn').onclick=printTitle;$('#gradeExcellent').oninput=calcGrades;$('#gradeGood').oninput=calcGrades;$('#gradeSatisfactory').oninput=calcGrades;$('#addDeadlineBtn').onclick=addDeadline;$('#clearCompletedBtn').onclick=clearCompletedDeadlines;loadCustomSchedule();restoreState();initEditor();initMethodology();initInstallPrompt();syncTitleGroup();calcGrades();loadDeadlines();if(localStorage.getItem(storageKey+':theme')==='light'){document.body.classList.remove('dark')}else{document.body.classList.add('dark')}clock();setInterval(clock,1000);renderSchedule();renderRooms();allCalc();updateBentoTelemetry();initSpotlight();initAiScanner();loadRemoteSchedule();registerServiceWorker();initDonation();
 let aiSelectedFiles = [];
 let aiParsedResult = null;
 function initAiScanner() {
