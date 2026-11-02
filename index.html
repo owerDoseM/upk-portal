@@ -7,7 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <title>Цифровой портал студента УПК</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=31">
+  <link rel="stylesheet" href="style.css?v=32">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body class="dark">
@@ -72,13 +72,12 @@
 <section id="rooms" class="section"><div class="page-head"><div><p class="eyebrow">БЫСТРЫЙ ПОИСК</p><h1>Навигатор кабинетов</h1><p class="muted">Найдите аудиторию по номеру, корпусу или преподавателю.</p></div></div><div class="search-box"><span>⌕</span><input id="roomSearch" placeholder="Например: 214, Иванова, мастерская"><select id="buildingFilter"><option value="">Все корпуса</option><option>Главный корпус</option><option>Мастерские</option><option>Лабораторный корпус</option></select><button id="freeRoomsBtn" class="secondary free-rooms-btn" type="button" aria-pressed="false">Только свободные</button></div><div id="roomResults" class="room-grid"></div></section>
 <section id="schedule-editor" class="section"><div class="page-head"><div><p class="eyebrow">ТОЛЬКО ДЛЯ АДМИНИСТРАТОРА</p><h1>Редактор расписания и замен</h1><p class="muted">Загружайте фото листа замен для моментального авто-распознавания или редактируйте вручную.</p></div></div><div class="card editor-card ai-scanner-card"><div class="ai-header"><span class="ai-badge">✨ ИИ-СКАНИРОВАНИЕ ЗАМЕН</span><h2>Авто-обновление расписания по фото</h2><p class="muted">Сфотографируйте лист замен (стенд или документ). Нейросеть распознает таблицу для всех групп и сразу опубликует файл schedule.json на GitHub Pages в один клик.</p></div><div class="ai-upload-zone" id="aiDropZone"><input type="file" id="aiPhotoInput" accept="image/*" multiple hidden><div class="upload-icon">📷</div><p><b>Нажмите для выбора фото</b> или перетащите файл сюда</p><small class="muted">Поддерживается 1 или несколько страниц (JPG, PNG)</small><div id="aiPhotoPreview" class="photo-preview-grid"></div></div><div class="ai-config-grid"><label><span>Gemini API Key <small>(бесплатный в Google AI Studio)</small></span><input type="password" id="geminiApiKey" placeholder="AIzaSy..."></label><label><span>GitHub Репозиторий <small>(например: username/upk)</small></span><input type="text" id="githubRepo" placeholder="username/upk"></label><label><span>GitHub Token (PAT) <small>(с правом доступа к repo)</small></span><input type="password" id="githubToken" placeholder="ghp_..."></label></div><div class="ai-actions"><button id="aiScanBtn" class="primary" type="button">⚡ 1. Распознать фото через ИИ</button><button id="aiApplyBtn" class="secondary" type="button" disabled>💾 2. Применить на сайте</button><button id="aiPublishGithubBtn" class="primary github-btn" type="button" disabled>🚀 3. Опубликовать на GitHub Pages</button></div><p id="aiScanStatus" class="editor-status" aria-live="polite"></p><div id="aiScanResult" class="scan-result-box" hidden><div class="scan-meta" id="aiScanMeta"></div><div class="table-responsive"><table id="aiScanTable" class="scan-table"><thead><tr><th>Группа</th><th>Пара</th><th>Предмет</th><th>Преподаватель</th><th>Кабинет</th></tr></thead><tbody id="aiScanTableBody"></tbody></table></div></div></div><div class="card editor-card"><div class="editor-toolbar"><label>Группа<select id="editorGroup"></select></label><button id="addGroupBtn" class="primary" type="button">＋ Добавить группу</button><label>День недели<select id="editorDay"></select></label></div><div id="editorLessons" class="editor-lessons"></div><div class="editor-actions"><button id="saveScheduleBtn" class="primary" type="button">Сохранить на этом компьютере</button><button id="exportScheduleBtn" class="primary" type="button">Экспорт кода для GitHub Pages</button><button id="resetScheduleBtn" class="secondary" type="button">Сбросить до исходного расписания УПК</button><button id="changePinBtn" class="secondary" type="button">Изменить PIN</button></div><p id="editorStatus" class="editor-status" aria-live="polite"></p><div class="schedule-import"><textarea id="scheduleImport" placeholder="Вставьте JSON или код вида const schedule = {...}"></textarea><button id="importScheduleBtn" class="secondary" type="button">Импорт расписания (JSON/код)</button></div><div id="scheduleCodeBox" class="schedule-code-box" hidden><textarea id="scheduleCode" readonly></textarea><button id="copyScheduleCodeBtn" class="primary" type="button">Скопировать код</button></div></div>
 <div class="card editor-card">
-  <h2>Реквизиты для пожертвований (СБП и карты)</h2>
-  <p class="muted">Настройте номер телефона, банк и ссылку на сбор средств, которые показываются пользователям при нажатии «Поддержать портал».</p>
+  <h2>Реквизиты для пожертвований (СБП)</h2>
+  <p class="muted">Настройте номер телефона, банк и имя получателя, которые показываются при нажатии кнопки «Поддержать портал».</p>
   <div class="ai-config-grid">
-    <label><span>Номер телефона для СБП</span><input type="text" id="adminDonatePhone" placeholder="+7 (900) 000-00-00"></label>
-    <label><span>Банк получателя</span><input type="text" id="adminDonateBank" placeholder="Т-Банк / Сбербанк"></label>
-    <label><span>Имя получателя</span><input type="text" id="adminDonateRecipient" placeholder="Имя Отчество Ф."></label>
-    <label><span>Ссылка на сбор средств (Т-Банк / ЮMoney)</span><input type="url" id="adminDonateLink" placeholder="https://www.tbank.ru/cf/..."></label>
+    <label><span>Номер телефона для СБП</span><input type="text" id="adminDonatePhone" placeholder="+7 (991) 353-63-72" value="+7 (991) 353-63-72"></label>
+    <label><span>Банк получателя</span><input type="text" id="adminDonateBank" placeholder="Т-Банк / Сбер" value="Т-Банк / Сбер"></label>
+    <label><span>Имя получателя</span><input type="text" id="adminDonateRecipient" placeholder="Арсен Петросян Юрьевич" value="Арсен Петросян Юрьевич"></label>
   </div>
   <div class="editor-actions">
     <button id="saveDonateSettingsBtn" class="primary" type="button">Сохранить реквизиты СБП</button>
@@ -129,47 +128,33 @@
           <span class="method-icon">⚡</span>
           <div>
             <b>Перевод через СБП (0% комиссии)</b>
-            <small class="muted">Мгновенно из любого банковского приложения</small>
+            <small class="muted">Мгновенно из Т-Банка, Сбера или любого банка РФ</small>
           </div>
         </div>
         <div class="donate-sbp-details">
           <div class="sbp-data-row">
             <span>Номер для СБП:</span>
-            <strong id="donatePhoneText">+7 (900) 000-00-00</strong>
+            <strong id="donatePhoneText">+7 (991) 353-63-72</strong>
             <button id="copyPhoneBtn" class="copy-chip" type="button" title="Скопировать телефон">📋 Копировать</button>
           </div>
           <div class="sbp-data-row">
             <span>Банк:</span>
-            <strong id="donateBankText">Т-Банк (Тинькофф) / Сбер</strong>
+            <strong id="donateBankText">Т-Банк / Сбер</strong>
           </div>
           <div class="sbp-data-row">
             <span>Получатель:</span>
-            <strong id="donateRecipientText">Студенческий совет УПК</strong>
+            <strong id="donateRecipientText">Арсен Петросян Юрьевич</strong>
           </div>
         </div>
-        <a id="donateSbpLinkBtn" href="#" class="primary donate-action-btn">
-          ⚡ Открыть в приложении банка (СБП)
-        </a>
-      </div>
-
-      <div class="donate-method-card" id="donateLinkCard">
-        <div class="donate-method-title">
-          <span class="method-icon">💳</span>
-          <div>
-            <b>Оплата картой РФ / Ссылка на сбор</b>
-            <small class="muted">МИР, Visa, Mastercard через официальную страницу сбора</small>
-          </div>
-        </div>
-        <a id="donateCardLinkBtn" href="#" class="secondary donate-action-btn" target="_blank" rel="noopener">
-          Перейти на страницу сбора (Т-Банк / ЮMoney) →
-        </a>
-      </div>
-    </div>
+        <button id="donateSbpLinkBtn" class="primary donate-action-btn" type="button">
+          ⚡ Скопировать номер для СБП (+79913536372)
+        </button>
+      </div></div>
 
     <p class="donate-footer-note muted">
       🔒 Перевод осуществляется напрямую через Систему Быстрых Платежей Банка России или официальный банковский сервис сбора средств.
     </p>
   </div>
 </div>
-<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=31"></script>
+<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=32"></script>
 </body></html>
