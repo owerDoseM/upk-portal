@@ -184,6 +184,7 @@ select,input{background:var(--card);color:var(--ink);border-color:var(--line)}
 .schedule-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}@media(max-width:700px){.schedule-grid{grid-template-columns:1fr}}
 
 /* --- AI Schedule Scanner & Replacements Banner --- */
+.schedule-note-banner[hidden]{display:none!important}
 .schedule-note-banner{display:inline-flex;align-items:center;gap:10px;background:var(--brand-light);border:1px solid var(--brand);color:var(--ink);padding:10px 16px;border-radius:10px;margin-top:12px;font-size:13px;font-weight:600;box-shadow:var(--shadow)}
 .schedule-note-banner b{color:var(--brand)}
 .ai-scanner-card{margin-top:22px;border:2px dashed var(--brand);background:var(--card)}
