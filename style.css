@@ -1293,3 +1293,50 @@ aside .side-note {
 /* Bell Schedule Lunch Highlight */
 .bell-list .bell-lunch { color: var(--brand, #10b981) !important; font-weight: 600; }
 .bell-list .bell-lunch b { color: var(--brand, #10b981) !important; }
+
+/* Sidebar Header Mobile & Install Button Refinement */
+.sidebar-header-mobile {
+  display: none !important;
+}
+.side-note .install-btn {
+  width: 100% !important;
+  margin: 0 0 14px 0 !important;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+}
+.side-note .install-btn[hidden] {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  .sidebar-header-mobile {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0 4px 14px !important;
+    margin-bottom: 12px !important;
+    border-bottom: 1px solid var(--line) !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: var(--ink) !important;
+  }
+  .sidebar-close-btn {
+    font-size: 18px !important;
+    padding: 4px 8px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    color: var(--muted) !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+  .sidebar-close-btn:hover {
+    color: var(--ink) !important;
+  }
+}

@@ -11,14 +11,14 @@
   <link rel="manifest" href="manifest.json?v=37">
   <title>Цифровой портал студента УПК</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=41">
+  <link rel="stylesheet" href="style.css?v=42">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body class="dark">
 <header class="topbar"><div class="brand"><span class="brand-mark">УПК</span><div><b>Цифровой портал студента</b><small>Узловского политехнического колледжа</small></div></div><div class="top-actions"><label class="profile-picker">Профиль<select id="profileSelect"><option value="economy">Экономическое отделение</option><option value="technical">Техническое отделение</option><option value="admin">Все модули / администратор</option></select></label><span id="clock">--:--:--</span><button id="soundBtn" class="icon-btn" type="button" title="Звук звонка (выкл)" aria-pressed="false">🔔<span class="sound-status-dot"></span></button><button id="qrBtn" class="icon-btn" title="QR-код страницы">▦</button><button id="themeBtn" class="icon-btn" title="Тема">☼</button><button id="menuBtn" class="icon-btn" aria-label="Меню">☰</button></div></header>
 <div class="layout">
 <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
-<aside id="sidebar"><label class="profile-picker profile-picker-sidebar">Профиль<select id="profileSelectMobile"><option value="economy">Экономическое отделение</option><option value="technical">Техническое отделение</option><option value="admin">Все модули / администратор</option></select></label><nav>
+<aside id="sidebar"><div class="sidebar-header-mobile"><span>Навигация по разделам</span><button id="closeSidebarBtn" class="icon-btn sidebar-close-btn" type="button" aria-label="Закрыть меню">✕</button></div><label class="profile-picker profile-picker-sidebar">Профиль<select id="profileSelectMobile"><option value="economy">Экономическое отделение</option><option value="technical">Техническое отделение</option><option value="admin">Все модули / администратор</option></select></label><nav>
 <button class="nav-item active" data-section="schedule">▦<span>Расписание и звонки</span></button>
 <button class="nav-item" data-section="rooms">⌖<span>Навигатор кабинетов</span></button>
 <button class="nav-item" data-section="economy" data-profile="economy">▤<span>Экономический дашборд</span></button>
@@ -27,7 +27,8 @@
 <button class="nav-item" data-section="methodology">§<span>Методическая база</span></button>
 <button class="nav-item" data-section="student-office">▣<span>Студенческий офис</span></button>
 <button class="nav-item" data-section="summary">✓<span>Сводка и печать</span></button>
-</nav><button id="installPwaBtn" class="primary install-btn" type="button" hidden>⬇ Установить приложение</button><div class="side-note">
+</nav><div class="side-note">
+  <button id="installPwaBtn" class="primary install-btn" type="button" hidden>⬇ Установить на телефон</button>
   <div class="hud-telemetry">
     <div class="hud-row"><span class="hud-dot live"></span> <span>Система онлайн</span></div>
   </div>
@@ -139,5 +140,5 @@
     </p>
   </div>
 </div>
-<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=41"></script>
+<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=42"></script>
 </body></html>
