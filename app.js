@@ -290,13 +290,103 @@ const baseSchedule={
   Пт:[['МДК.05.01 Планирование, организация и контроль качества деятельности подчиненного персонала','Шинкарева А.М.','203'],['МДК.05.01 Планирование, организация и контроль качества деятельности подчиненного персонала','Шинкарева А.М.','203'],['Физическая культура','Фильчев А.В.','Стадион'],['МДК.05.01 Планирование, организация и контроль качества деятельности подчиненного персонала','Шинкарева А.М.','203']]
  },
 };
-const periods=[
+const standardPeriods = [
  {number:1,start:'08:30',firstEnd:'09:15',breakStart:'09:15',breakEnd:'09:20',end:'10:05',next:'10:15'},
  {number:2,start:'10:15',firstEnd:'11:00',breakStart:'11:00',breakEnd:'11:05',end:'11:50',next:'12:20'},
  {number:3,start:'12:20',firstEnd:'13:05',breakStart:'13:05',breakEnd:'13:10',end:'13:55',next:'14:05'},
  {number:4,start:'14:05',firstEnd:'14:50',breakStart:'14:50',breakEnd:'14:55',end:'15:40',next:'15:50'},
  {number:5,start:'15:50',firstEnd:'16:35',breakStart:'16:35',breakEnd:'16:40',end:'17:25',next:null}
 ];
+
+const specialPeriods_2026_11_03 = [
+ {number:1,start:'08:30',firstEnd:'09:10',breakStart:'09:10',breakEnd:'09:15',end:'09:50',next:'10:00'},
+ {number:2,start:'10:00',firstEnd:'10:40',breakStart:'10:40',breakEnd:'10:45',end:'11:20',next:'11:40'},
+ {number:3,start:'11:40',firstEnd:'12:20',breakStart:'12:20',breakEnd:'12:25',end:'13:00',next:'13:10'},
+ {number:4,start:'13:10',firstEnd:'13:50',breakStart:'13:50',breakEnd:'13:55',end:'14:30',next:'14:40'},
+ {number:5,start:'14:40',firstEnd:'15:20',breakStart:'15:20',breakEnd:'15:25',end:'16:00',next:null}
+];
+
+const standardBellTimes = new Set(['08:30','09:15','09:20','10:05','10:15','11:00','11:05','11:50','12:20','13:05','13:10','13:55','14:05','14:50','14:55','15:40','15:50','16:35','16:40','17:25']);
+const specialBellTimes_2026_11_03 = new Set(['08:30','09:10','09:15','09:50','10:00','10:40','10:45','11:20','11:40','12:20','12:25','13:00','13:10','13:50','13:55','14:30','14:40','15:20','15:25','16:00']);
+
+let periods = standardPeriods;
+let bellScheduleMode = 'nov3';
+let userOverrodeBellMode = false;
+
+function isNov3(date = new Date()) {
+  return date.getFullYear() === 2026 && date.getMonth() === 10 && date.getDate() === 3;
+}
+
+function getActivePeriods(date = new Date()) {
+  return isNov3(date) ? specialPeriods_2026_11_03 : standardPeriods;
+}
+
+function getPeriodsForDay(dayIndex) {
+  if (userOverrodeBellMode) {
+    return bellScheduleMode === 'nov3' ? specialPeriods_2026_11_03 : standardPeriods;
+  }
+  return dayIndex === 1 ? specialPeriods_2026_11_03 : standardPeriods;
+}
+
+function renderBellList(mode) {
+  const listEl = $('#bellList');
+  const badgeEl = $('#bellModeBadge');
+  const subtitleEl = $('#bellSubtitle');
+  const stdBtn = $('#bellStandardBtn');
+  const nov3Btn = $('#bellNov3Btn');
+
+  if (mode === 'nov3') {
+    if (stdBtn) { stdBtn.classList.remove('active'); stdBtn.setAttribute('aria-selected', 'false'); }
+    if (nov3Btn) { nov3Btn.classList.add('active'); nov3Btn.setAttribute('aria-selected', 'true'); }
+    if (badgeEl) { badgeEl.className = 'bell-mode-badge is-holiday'; badgeEl.textContent = '⚡ 3 ноября · Сокращённый день'; }
+    if (subtitleEl) { subtitleEl.textContent = 'Расписание звонков на 03 ноября 2026 (вторник) — пары по 40/35 мин'; }
+    if (listEl) {
+      listEl.innerHTML = '<span>1 пара <b>08:30–09:10 / 09:15–09:50</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span class="bell-break">Перемена <b>09:50–10:00</b> <small>(10 мин)</small></span>' +
+        '<span>2 пара <b>10:00–10:40 / 10:45–11:20</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span class="bell-lunch">Обед <b>11:20–11:40</b> <small>(перерыв 20 мин)</small></span>' +
+        '<span>3 пара <b>11:40–12:20 / 12:25–13:00</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span class="bell-break">Перемена <b>13:00–13:10</b> <small>(10 мин)</small></span>' +
+        '<span>4 пара <b>13:10–13:50 / 13:55–14:30</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span class="bell-break">Перемена <b>14:30–14:40</b> <small>(10 мин)</small></span>' +
+        '<span>5 пара <b>14:40–15:20 / 15:25–16:00</b> <small>(перерыв 5 мин)</small></span>';
+    }
+  } else {
+    if (nov3Btn) { nov3Btn.classList.remove('active'); nov3Btn.setAttribute('aria-selected', 'false'); }
+    if (stdBtn) { stdBtn.classList.add('active'); stdBtn.setAttribute('aria-selected', 'true'); }
+    if (badgeEl) { badgeEl.className = 'bell-mode-badge'; badgeEl.textContent = 'Стандартное расписание'; }
+    if (subtitleEl) { subtitleEl.textContent = 'Стандартное расписание звонков колледжа — пары по 45 мин'; }
+    if (listEl) {
+      listEl.innerHTML = '<span>1 пара <b>08:30–09:15 / 09:20–10:05</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span>2 пара <b>10:15–11:00 / 11:05–11:50</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span class="bell-lunch">Обед <b>11:50–12:20</b> <small>(перерыв 30 мин)</small></span>' +
+        '<span>3 пара <b>12:20–13:05 / 13:10–13:55</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span>4 пара <b>14:05–14:50 / 14:55–15:40</b> <small>(перерыв 5 мин)</small></span>' +
+        '<span>5 пара <b>15:50–16:35 / 16:40–17:25</b> <small>(перерыв 5 мин)</small></span>';
+    }
+  }
+}
+
+function initBellsSwitcher() {
+  const stdBtn = $('#bellStandardBtn');
+  const nov3Btn = $('#bellNov3Btn');
+  if (stdBtn) {
+    stdBtn.onclick = () => {
+      userOverrodeBellMode = true;
+      bellScheduleMode = 'standard';
+      renderBellList('standard');
+      renderSchedule();
+    };
+  }
+  if (nov3Btn) {
+    nov3Btn.onclick = () => {
+      userOverrodeBellMode = true;
+      bellScheduleMode = 'nov3';
+      renderBellList('nov3');
+      renderSchedule();
+    };
+  }
+}
 function clockMinutes(value){const [hours,minutes]=value.split(':').map(Number);return hours*60+minutes}
 function minutesUntil(time,current){return Math.max(0,Math.ceil(clockMinutes(time)-current))}
 const scheduleStorageKey='upk_custom_schedule_v20';
@@ -391,7 +481,7 @@ const rooms=[
  ['спортзал','Спорткомплекс','Физическая культура','Волков И.И.','1 этаж']
 ];
 let selectedDay=Math.min(5,Math.max(0,new Date().getDay()-1)), chart, lastClockMinute=null, lastBellMinute=null, deferredPrompt=null, filterOnlyFree=false, focusCurrentOnRender=true, soundEnabled=localStorage.getItem('upk_sound_enabled')==='true', bellAudioContext=null;
-const schoolBellTimes=new Set(['08:30','09:15','09:20','10:05','10:15','11:00','11:05','11:50','12:20','13:05','13:10','13:55','14:05','14:50','14:55','15:40','15:50','16:35','16:40','17:25']);
+const schoolBellTimes = standardBellTimes;
 function getBellAudioContext(){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return null;if(!bellAudioContext)bellAudioContext=new AudioContextClass();return bellAudioContext}
 function playSchoolBell(){const context=getBellAudioContext();if(!context)return;if(context.state==='suspended')context.resume().catch(error=>console.warn('Не удалось активировать аудиоконтекст звонка:',error));const start=context.currentTime;[[587.33,0],[880,0.22]].forEach(([frequency,delay])=>{const oscillator=context.createOscillator(),gain=context.createGain(),noteStart=start+delay;oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,noteStart);gain.gain.setValueAtTime(0.0001,noteStart);gain.gain.exponentialRampToValueAtTime(0.12,noteStart+0.035);gain.gain.exponentialRampToValueAtTime(0.0001,noteStart+0.85);oscillator.connect(gain);gain.connect(context.destination);oscillator.start(noteStart);oscillator.stop(noteStart+0.9)})}
 function updateSoundButton(){const button=$('#soundBtn');if(!button)return;button.classList.toggle('sound-enabled',soundEnabled);button.title=`Звук звонка (${soundEnabled?'вкл':'выкл'})`;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(soundEnabled))}
@@ -401,23 +491,24 @@ function animateMetric(el,value,format){const from=Number(el.dataset.value)||0,t
 function getBentoCallStatus(testDate = new Date()) {
   const d = testDate;
   if (d.getDay() === 0) return { full: 'Занятия завершены на сегодня. Кайфуйте! :)', short: 'Выходной день' };
+  const currentPeriods = getActivePeriods(d);
   const now = d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
-  const firstStart = clockMinutes(periods[0].start);
+  const firstStart = clockMinutes(currentPeriods[0].start);
   if (now < firstStart) {
-    const m = minutesUntil(periods[0].start, now);
+    const m = minutesUntil(currentPeriods[0].start, now);
     return {
       full: 'Занятия ещё не начались. До звонка на 1 пару осталось: ' + m + ' мин.',
       short: 'До 1 пары: ' + m + ' мин'
     };
   }
-  const lastEnd = clockMinutes(periods[periods.length - 1].end);
+  const lastEnd = clockMinutes(currentPeriods[currentPeriods.length - 1].end);
   if (now >= lastEnd) {
     return {
       full: 'Занятия завершены на сегодня. Кайфуйте! :)',
       short: 'Занятия завершены'
     };
   }
-  for (const period of periods) {
+  for (const period of currentPeriods) {
     const start = clockMinutes(period.start);
     const firstEnd = clockMinutes(period.firstEnd);
     const breakEnd = clockMinutes(period.breakEnd);
@@ -448,7 +539,7 @@ function getBentoCallStatus(testDate = new Date()) {
       const m = minutesUntil(period.next, now);
       if (period.number === 2) {
         return {
-          full: 'Сейчас большой обеденный перерыв. До звонка на 3 пару осталось: ' + m + ' мин.',
+          full: 'Сейчас обед. До звонка на 3 пару осталось: ' + m + ' мин.',
           short: 'Обед (до 3 пары ' + m + ' мин)'
         };
       }
@@ -467,7 +558,7 @@ function clock(){
   $('#clock').textContent=d.toLocaleTimeString('ru-RU');
   $('#todayDate').textContent=d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   $('#todayDay').textContent=d.toLocaleDateString('ru-RU',{weekday:'long'});
-  if(soundEnabled&&d.getDay()!==0&&d.getSeconds()===0&&schoolBellTimes.has(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'))&&lastBellMinute!==minuteKey){
+  if(soundEnabled&&d.getDay()!==0&&d.getSeconds()===0&&(isNov3(d) ? specialBellTimes_2026_11_03 : standardBellTimes).has(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'))&&lastBellMinute!==minuteKey){
     lastBellMinute=minuteKey;
     playSchoolBell();
   }
@@ -484,16 +575,49 @@ function clock(){
     renderRooms();
   }
 }
-function renderDays(){const todayIndex=new Date().getDay()-1;$('#dayTabs').innerHTML=days.map((d,i)=>`<button class="${i===selectedDay?'active':''}" data-day="${i}">${d}${i===todayIndex?' <span class="today-marker" title="Сегодня">●</span>':''}</button>`).join('');$$('#dayTabs button').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;focusCurrentOnRender=selectedDay===new Date().getDay()-1;renderSchedule()})}
-function selectTomorrow(){const day=new Date().getDay();selectedDay=day>=1&&day<=5?day:0;focusCurrentOnRender=false;renderSchedule()}
+function renderDays(){const todayIndex=new Date().getDay()-1;$('#dayTabs').innerHTML=days.map((d,i)=>`<button class="${i===selectedDay?'active':''}" data-day="${i}">${d}${i===todayIndex?' <span class="today-marker" title="Сегодня">●</span>':''}</button>`).join('');$$('#dayTabs button').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;userOverrodeBellMode=false;focusCurrentOnRender=selectedDay===new Date().getDay()-1;renderSchedule()})}
+function selectTomorrow(){const day=new Date().getDay();selectedDay=day>=1&&day<=5?day:0;userOverrodeBellMode=false;focusCurrentOnRender=false;renderSchedule()}
 function updateTomorrowButton(){const btn=$('#tomorrowBtn');if(!btn)return;const day=new Date().getDay(),tomorrowIndex=day>=1&&day<=5?day:0;btn.hidden=selectedDay===tomorrowIndex}
 function focusRoom(room){const sectionButton=$('.nav-item[data-section="rooms"]');if(sectionButton){$$('.nav-item').forEach(button=>button.classList.remove('active'));sectionButton.classList.add('active')}$$('.section').forEach(section=>section.classList.toggle('active',section.id==='rooms'));$('#roomSearch').value=room;$('#buildingFilter').value='';renderRooms();window.scrollTo({top:0,behavior:'smooth'})}
-function renderSchedule(){renderDays();updateTomorrowButton();const g=$('#groupSelect').value,items=(schedule[g]&&schedule[g][days[selectedDay]])||[],activeLessons=items.map((lesson,index)=>({lesson,index})).filter(item=>item.lesson[0]&&item.lesson[0]!=='—'),todayIndex=new Date().getDay()-1,now=new Date(),nowMinutes=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;$('#scheduleGrid').innerHTML=activeLessons.length?activeLessons.map(item=>{const x=item.lesson,p=periods[item.index%periods.length],isCurrent=selectedDay===todayIndex&&nowMinutes>=clockMinutes(p.start)&&nowMinutes<clockMinutes(p.end),roomList=getLessonRoomNumbers(x[2]);return `<article class="schedule-card ${isCurrent?'is-current':''}"><span class="lesson-num">${item.index+1} ПАРА · ${p.start}–${p.end}${isCurrent?' <b class="now-badge">● СЕЙЧАС</b>':''}</span><h3>${escapeHtml(x[0])}</h3><p>◉ ${escapeHtml(x[1])}</p><p>⌖ ${roomList.map(room=>`<button class="room-link" type="button" data-room="${escapeHtml(room)}">Кабинет ${escapeHtml(room)}</button>`).join(' / ')}</p><small>${p.start}–${p.end} (перерыв ${p.breakStart}–${p.breakEnd})</small></article>`}).join(''):'<div class="card empty-state">Пар нет — кайфуйте! :)</div>';$$('.room-link').forEach(button=>button.onclick=()=>focusRoom(button.dataset.room));if(focusCurrentOnRender&&selectedDay===todayIndex){const currentCard=$('.schedule-card.is-current');if(currentCard)currentCard.scrollIntoView({behavior:'smooth',block:'nearest'})}focusCurrentOnRender=false;clock();}
+function renderSchedule(){
+  renderDays();
+  updateTomorrowButton();
+  if(!userOverrodeBellMode){
+    bellScheduleMode=(selectedDay===1)?'nov3':'standard';
+  }
+  renderBellList(bellScheduleMode);
+  const dayPeriods=getPeriodsForDay(selectedDay);
+  const g=$('#groupSelect').value,items=(schedule[g]&&schedule[g][days[selectedDay]])||[],activeLessons=items.map((lesson,index)=>({lesson,index})).filter(item=>item.lesson[0]&&item.lesson[0]!=='—'),todayIndex=new Date().getDay()-1,now=new Date(),nowMinutes=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  $('#scheduleGrid').innerHTML=activeLessons.length?activeLessons.map(item=>{
+    const x=item.lesson,p=dayPeriods[item.index%dayPeriods.length],isCurrent=selectedDay===todayIndex&&nowMinutes>=clockMinutes(p.start)&&nowMinutes<clockMinutes(p.end),roomList=getLessonRoomNumbers(x[2]);
+    return `<article class="schedule-card ${isCurrent?'is-current':''}"><span class="lesson-num">${item.index+1} ПАРА · ${p.start}–${p.end}${isCurrent?' <b class="now-badge">● СЕЙЧАС</b>':''}</span><h3>${escapeHtml(x[0])}</h3><p>◉ ${escapeHtml(x[1])}</p><p>⌖ ${roomList.map(room=>`<button class="room-link" type="button" data-room="${escapeHtml(room)}">Кабинет ${escapeHtml(room)}</button>`).join(' / ')}</p><small>${p.start}–${p.end} (перерыв ${p.breakStart}–${p.breakEnd})</small></article>`;
+  }).join(''):'<div class="card empty-state">Пар нет — кайфуйте! :)</div>';
+  $$('.room-link').forEach(button=>button.onclick=()=>focusRoom(button.dataset.room));
+  if(focusCurrentOnRender&&selectedDay===todayIndex){
+    const currentCard=$('.schedule-card.is-current');
+    if(currentCard)currentCard.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  focusCurrentOnRender=false;
+  clock();
+}
 function normalizeSearch(value){return String(value||'').toLocaleLowerCase('ru-RU').trim().replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim()}
 function searchTokens(value){const normalized=normalizeSearch(value);return normalized?normalized.split(' '):[]}
 function getLessonRoomNumbers(value){const raw=String(value||'').trim();if(!raw)return[];if(rooms.some(room=>normalizeSearch(room[0])===normalizeSearch(raw)))return[raw];return raw.split(/\s*\/\s*/).map(room=>room.trim()).filter(Boolean)}
 function getRoomScheduleText(roomNumber){const target=normalizeSearch(roomNumber),values=[];Object.values(schedule).forEach(groupDays=>Object.values(groupDays||{}).forEach(lessons=>(lessons||[]).forEach(lesson=>{const lessonRooms=getLessonRoomNumbers(lesson[2]).map(normalizeSearch);if(lessonRooms.includes(target))values.push(`${lesson[0]} ${lesson[1]}`)})));return values.join(' ')}
-function getRoomLiveStatus(roomNumber){const now=new Date(),dayIndex=now.getDay()-1;if(dayIndex<0||dayIndex>=days.length)return null;const nowMinutes=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;const period=periods.find(item=>nowMinutes>=clockMinutes(item.start)&&nowMinutes<clockMinutes(item.end));if(!period)return{occupied:false};const day=days[dayIndex],target=normalizeSearch(roomNumber);for(const [group,groupDays] of Object.entries(schedule)){const lesson=(groupDays[day]||[])[period.number-1],lessonRooms=lesson?getLessonRoomNumbers(lesson[2]).map(normalizeSearch):[];if(lesson&&lessonRooms.includes(target)&&lesson[0]&&lesson[0]!=='—')return{occupied:true,lesson:lesson[0],group,teacher:lesson[1],periodNum:period.number}}return{occupied:false}}
+function getRoomLiveStatus(roomNumber){
+  const now=new Date(),dayIndex=now.getDay()-1;
+  if(dayIndex<0||dayIndex>=days.length)return null;
+  const nowMinutes=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  const curPeriods=getActivePeriods(now);
+  const period=curPeriods.find(item=>nowMinutes>=clockMinutes(item.start)&&nowMinutes<clockMinutes(item.end));
+  if(!period)return{occupied:false};
+  const day=days[dayIndex],target=normalizeSearch(roomNumber);
+  for(const [group,groupDays] of Object.entries(schedule)){
+    const lesson=(groupDays[day]||[])[period.number-1],lessonRooms=lesson?getLessonRoomNumbers(lesson[2]).map(normalizeSearch):[];
+    if(lesson&&lessonRooms.includes(target)&&lesson[0]&&lesson[0]!=='—')return{occupied:true,lesson:lesson[0],group,teacher:lesson[1],periodNum:period.number};
+  }
+  return{occupied:false};
+}
 function renderRooms(){const query=normalizeSearch($('#roomSearch').value),queryTokens=searchTokens(query),building=$('#buildingFilter').value;const exactCode=query?rooms.filter(room=>normalizeSearch(room[0])===query):[];const found=rooms.filter(room=>{if(building&&room[1]!==building)return false;if(filterOnlyFree&&getRoomLiveStatus(room[0])?.occupied===true)return false;if(!query)return true;if(exactCode.length)return exactCode.includes(room);const codeTokens=searchTokens(room[0]);if(queryTokens.length===1&&codeTokens.some(token=>token.startsWith(queryTokens[0])))return true;const fields=[room[1],room[2],room[3],room[4],getRoomScheduleText(room[0])];const fieldTokens=fields.flatMap(searchTokens);return queryTokens.every(token=>fieldTokens.some(fieldToken=>fieldToken===token||fieldToken.startsWith(token)))});$('#roomResults').innerHTML=found.length?found.map(room=>{const status=getRoomLiveStatus(room[0]),live=status&&status.occupied;const banner=live?`<div class="room-live-banner occupied"><span class="live-dot pulse">●</span><div><b>Сейчас идёт ${status.periodNum} пара:</b> ${escapeHtml(status.lesson)} · гр. ${escapeHtml(status.group)} (${escapeHtml(status.teacher)})</div></div>`:status?'<div class="room-live-banner free"><span class="live-dot">●</span><div>Сейчас занятий нет</div></div>':'';return `<article class="room-card ${live?'is-occupied':''}"><span class="room-tag">${escapeHtml(room[1])}</span><h3>Кабинет ${escapeHtml(room[0])}</h3><p><b>${escapeHtml(room[2])}</b></p><p>Преподаватель: ${escapeHtml(room[3])}</p><p>⌖ ${escapeHtml(room[4])}</p>${banner}</article>`}).join(''):'<div class="card">Ничего не найдено. Измените запрос.</div>';}
 const methodologyData=[
  {id:'bep',category:'economy',categoryLabel:'Экономика и налоги',title:'Точка безубыточности (CVP / BEP)',formula:'BEP = FC / (P − AVC)',variables:'FC — постоянные затраты, ₽; P — цена единицы, ₽; AVC — переменные затраты на единицу, ₽; BEP — критический объем, шт.',derivation:'В точке безубыточности прибыль равна нулю, поэтому выручка равна совокупным затратам: TR = TC. Подставляя TR = P × Q и TC = FC + AVC × Q, получаем P × Q = FC + AVC × Q. После переноса переменной части: Q × (P − AVC) = FC. Отсюда BEP = FC / (P − AVC).',example:'При FC = 85 000 ₽, P = 1 200 ₽ и AVC = 650 ₽: BEP = 85 000 / 550 = 154,5, то есть необходимо реализовать минимум 155 единиц продукции.',keywords:'CVP выручка затраты порог рентабельности точка безубыточности',chart:'bep'},
@@ -523,7 +647,7 @@ function calcCutting(){const diameter=n('#cuttingDiameter'),speed=n('#spindleSpe
 function calendarStamp(date,time){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');return `${y}${m}${d}T${time.replace(':','')}00`}
 function calendarUtcStamp(date){const y=date.getUTCFullYear(),m=String(date.getUTCMonth()+1).padStart(2,'0'),d=String(date.getUTCDate()).padStart(2,'0'),h=String(date.getUTCHours()).padStart(2,'0'),min=String(date.getUTCMinutes()).padStart(2,'0'),s=String(date.getUTCSeconds()).padStart(2,'0');return `${y}${m}${d}T${h}${min}${s}Z`}
 function icsText(value){return String(value||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n')}
-function exportScheduleCalendar(){const group=$('#groupSelect').value,dayIndex=selectedDay,now=new Date(),monday=new Date(now);monday.setHours(0,0,0,0);const offset=monday.getDay()===0?-6:1-monday.getDay();monday.setDate(monday.getDate()+offset);const date=new Date(monday);date.setDate(monday.getDate()+dayIndex);const lessons=(schedule[group]&&schedule[group][days[dayIndex]])||[],events=lessons.map((lesson,index)=>{if(!lesson[0]||lesson[0]==='—')return '';const period=periods[index%periods.length];return `BEGIN:VEVENT\r\nUID:upk-${date.getTime()}-${index}@upk-portal\r\nDTSTAMP:${calendarUtcStamp(new Date())}\r\nDTSTART;TZID=Europe/Moscow:${calendarStamp(date,period.start)}\r\nDTEND;TZID=Europe/Moscow:${calendarStamp(date,period.end)}\r\nSUMMARY:${icsText(lesson[0])}\r\nDESCRIPTION:${icsText(`Преподаватель: ${lesson[1]}`)}\r\nLOCATION:${icsText(lesson[2])}\r\nEND:VEVENT`}).filter(Boolean).join('\r\n');const content=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//UPK Portal//Schedule//RU\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:Europe/Moscow\r\nX-WR-CALNAME:${icsText(`Расписание ${group}`)}\r\n${events}\r\nEND:VCALENDAR\r\n`;const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([content],{type:'text/calendar;charset=utf-8'}));link.download='upk-schedule.ics';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
+function exportScheduleCalendar(){const group=$('#groupSelect').value,dayIndex=selectedDay,now=new Date(),monday=new Date(now);monday.setHours(0,0,0,0);const offset=monday.getDay()===0?-6:1-monday.getDay();monday.setDate(monday.getDate()+offset);const date=new Date(monday);date.setDate(monday.getDate()+dayIndex);const lessons=(schedule[group]&&schedule[group][days[dayIndex]])||[],events=lessons.map((lesson,index)=>{if(!lesson[0]||lesson[0]==='—')return '';const period=getPeriodsForDay(dayIndex)[index%getPeriodsForDay(dayIndex).length];return `BEGIN:VEVENT\r\nUID:upk-${date.getTime()}-${index}@upk-portal\r\nDTSTAMP:${calendarUtcStamp(new Date())}\r\nDTSTART;TZID=Europe/Moscow:${calendarStamp(date,period.start)}\r\nDTEND;TZID=Europe/Moscow:${calendarStamp(date,period.end)}\r\nSUMMARY:${icsText(lesson[0])}\r\nDESCRIPTION:${icsText(`Преподаватель: ${lesson[1]}`)}\r\nLOCATION:${icsText(lesson[2])}\r\nEND:VEVENT`}).filter(Boolean).join('\r\n');const content=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//UPK Portal//Schedule//RU\r\nCALSCALE:GREGORIAN\r\nX-WR-TIMEZONE:Europe/Moscow\r\nX-WR-CALNAME:${icsText(`Расписание ${group}`)}\r\n${events}\r\nEND:VCALENDAR\r\n`;const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([content],{type:'text/calendar;charset=utf-8'}));link.download='upk-schedule.ics';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000)}
 function summary(){const profile=$('#profileSelect').value,price=n('#cvpPrice'),variable=n('#cvpVariable'),fixed=n('#cvpFixed'),quantity=n('#cvpQuantity'),margin=price-variable,bep=margin>0?fixed/margin:0,revenue=price*quantity,profit=margin*quantity-fixed,safety=quantity&&margin>0?(quantity-bep)/quantity*100:0,common=[['Группа',$('#groupSelect').value]],finance=[['Цена за единицу',money(price)],['Переменные затраты',money(variable)],['Постоянные затраты',money(fixed)],['Плановый объём',quantity+' шт.'],['Выручка',money(revenue)],['Прибыль / убыток',money(profit)],['Точка безубыточности',margin>0?Math.ceil(bep)+' шт.':'—'],['Запас финансовой прочности',margin>0?safety.toFixed(1)+'%':'—'],['Рекомендация по налогам',$('#taxCompare').textContent||'—'],['Нормативная база','422-ФЗ; п. 3.1 ст. 346.21 НК РФ'],['Кредит / лизинг',$('#financeCompare').textContent||'—'],['Амортизация ОС',$('#deprResult').textContent||'—']],tech=[['Материал',$('#metal').selectedOptions[0].text],['Форма заготовки',$('#metalShape').selectedOptions[0].text],['Длина / ширина / высота',`${$('#metalLength').value} / ${$('#metalWidth').value} / ${$('#metalHeight').value} мм`],['Плотность',`${$('#metal').value} кг/м³`],['Масса',$('#metalResult').textContent],['Напряжение / ток',`${$('#volt').value} В / ${$('#amp').value} А`],['cos φ',$('#cos').value],['Фазы',$('#phases').value],['Потребляемая мощность',$('#powerResult').textContent]];const block=(title,rows)=>`<div class="summary-block"><h2>${title}</h2>${rows.map(r=>`<div class="summary-row"><span>${r[0]}</span><span>${r[1]||'—'}</span></div>`).join('')}</div>`;let html='<div class="print-title"><b>УПК</b><span>'+({economy:'Финансово-экономический паспорт проекта',technical:'Ведомость технологических расчётов',admin:'Сводный отчёт по модулям'}[profile])+'</span><span>'+new Date().toLocaleDateString('ru-RU')+'</span></div>'+block('Общие параметры',common);if(profile==='economy')html+=block('Финансово-экономический паспорт проекта',finance);else if(profile==='technical')html+=block('Ведомость технологических расчётов',tech);else html+=block('Финансово-экономический блок',finance)+block('Технический блок',tech);$('#summaryContent').innerHTML=html+'<p class="muted">Аналитическое резюме: '+(profile==='technical'?'расчётные параметры заготовки и электросети подготовлены для технологического анализа.':'финансовые показатели и режим налогообложения сопоставлены для принятия управленческого решения.')+'</p><div class="signatures">Выполнил студент группы: ____________________<br><br>Проверил преподаватель: ____________________</div>';}
 $$('.module-tab').forEach(b=>b.onclick=()=>{$$('.module-tab').forEach(x=>x.classList.remove('active'));$$('.module-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active')});
 function allCalc(){calcEconomy();calcTaxes();calcEngineering();calcDepreciation();calcCutting();summary()}
@@ -579,7 +703,7 @@ $('#freeRoomsBtn').onclick=event=>{filterOnlyFree=!filterOnlyFree;event.currentT
 $('#groupSelect').addEventListener('change',()=>{focusCurrentOnRender=selectedDay===new Date().getDay()-1});
 $$('.nav-item').forEach(b=>b.onclick=()=>{if(b.dataset.section==='schedule-editor'&&!editorUnlocked){const expected=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Введите пароль администратора:')!==expected){alert('Неверный пароль.');return}editorUnlocked=true}$$('.nav-item').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.section').forEach(s=>s.classList.toggle('active',s.id===b.dataset.section));closeSidebar();window.scrollTo({top:0,behavior:'smooth'});if(b.dataset.section==='summary')summary()});
 $('#groupSelect').onchange=()=>{saveState({target:$('#groupSelect')});syncTitleGroup();renderSchedule();summary();updateBentoTelemetry();initSpotlight();};$$('#profileSelect,#profileSelectMobile').forEach(e=>e.onchange=event=>{$('#profileSelect').value=event.target.value;$('#profileSelectMobile').value=event.target.value;localStorage.setItem(storageKey+':profileSelect',event.target.value);applyProfile(event.target.value)});$('#roomSearch').oninput=e=>{saveState(e);renderRooms()};$('#buildingFilter').onchange=e=>{saveState(e);renderRooms()};$$('input,select').forEach(e=>{e.addEventListener('input',e=>{saveState(e);allCalc()});e.addEventListener('change',e=>{saveState(e);allCalc()})});$('#printBtn').onclick=()=>window.print();$('#csvBtn').onclick=downloadCsv;$('#copyBtn').onclick=copySummary;$('#resetBtn').onclick=()=>{Object.keys(localStorage).filter(k=>k.startsWith(storageKey+':')).forEach(k=>localStorage.removeItem(k));location.reload()};$('#menuBtn').onclick=()=>{ const s=$('#sidebar'); if(s&&s.classList.contains('open')) closeSidebar(); else openSidebar(); };const _cs=$('#closeSidebarBtn');if(_cs)_cs.onclick=closeSidebar;$('#sidebarOverlay').onclick=closeSidebar;$('#themeBtn').onclick=()=>{document.body.classList.toggle('dark');localStorage.setItem(storageKey+':theme',document.body.classList.contains('dark')?'dark':'light');syncChartTheme()};$('#qrBtn').onclick=openQr;$('#closeQrBtn').onclick=closeQr;$('#qrModal').onclick=e=>{if(e.target.id==='qrModal')closeQr()};$('#copyLinkBtn').onclick=()=>{const done=()=>{$('#copyLinkBtn').textContent='Ссылка скопирована';setTimeout(()=>$('#copyLinkBtn').textContent='Скопировать ссылку',1500)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done).catch(()=>{fallbackCopy(location.href);done()});else{fallbackCopy(location.href);done()}};$('#editorGroup').onchange=editorRows;$('#editorDay').onchange=editorRows;$('#addGroupBtn').onclick=addEditorGroup;$('#saveScheduleBtn').onclick=saveEditor;$('#exportScheduleBtn').onclick=exportScheduleCode;$('#resetScheduleBtn').onclick=resetCustomSchedule;$('#importScheduleBtn').onclick=importSchedule;$('#changePinBtn').onclick=()=>{const oldPin=localStorage.getItem('upk_editor_pin')||DEFAULT_ADMIN_PASSWORD;if(prompt('Текущий пароль:')!==oldPin){alert('Неверный текущий пароль.');return;}const next=prompt('Новый пароль:');if(next&&next.trim().length>=4){localStorage.setItem('upk_editor_pin',next.trim());$('#editorStatus').textContent='Пароль успешно изменён.'}else alert('Пароль должен содержать минимум 4 символа.')};$('#copyScheduleCodeBtn').onclick=()=>{const copy=navigator.clipboard?.writeText($('#scheduleCode').value);if(copy)copy.then(()=>$('#editorStatus').textContent='Код расписания скопирован в буфер.').catch(()=>{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'});else{fallbackCopy($('#scheduleCode').value);$('#editorStatus').textContent='Код расписания скопирован в буфер.'}};
-$('#calendarExportBtn').onclick=exportScheduleCalendar;$('#tomorrowBtn').onclick=selectTomorrow;$('#printTitleBtn').onclick=printTitle;$('#gradeExcellent').oninput=calcGrades;$('#gradeGood').oninput=calcGrades;$('#gradeSatisfactory').oninput=calcGrades;$('#addDeadlineBtn').onclick=addDeadline;$('#clearCompletedBtn').onclick=clearCompletedDeadlines;loadCustomSchedule();restoreState();initEditor();initMethodology();initInstallPrompt();syncTitleGroup();calcGrades();loadDeadlines();if(localStorage.getItem(storageKey+':theme')==='light'){document.body.classList.remove('dark')}else{document.body.classList.add('dark')}clock();setInterval(clock,1000);renderSchedule();renderRooms();allCalc();updateBentoTelemetry();initSpotlight();initAiScanner();loadRemoteSchedule();registerServiceWorker();initDonation();
+$('#calendarExportBtn').onclick=exportScheduleCalendar;$('#tomorrowBtn').onclick=selectTomorrow;$('#printTitleBtn').onclick=printTitle;$('#gradeExcellent').oninput=calcGrades;$('#gradeGood').oninput=calcGrades;$('#gradeSatisfactory').oninput=calcGrades;$('#addDeadlineBtn').onclick=addDeadline;$('#clearCompletedBtn').onclick=clearCompletedDeadlines;loadCustomSchedule();restoreState();initEditor();initMethodology();initInstallPrompt();syncTitleGroup();calcGrades();loadDeadlines();if(localStorage.getItem(storageKey+':theme')==='light'){document.body.classList.remove('dark')}else{document.body.classList.add('dark')}clock();setInterval(clock,1000);renderSchedule();renderRooms();allCalc();updateBentoTelemetry();initSpotlight();initAiScanner();loadRemoteSchedule();registerServiceWorker();initDonation();initBellsSwitcher();
 let aiSelectedFiles = [];
 let aiParsedResult = null;
 function initAiScanner() {
