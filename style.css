@@ -806,36 +806,79 @@ body:not(.dark) .donate-preset-btn.active {
 
 
 /* --- QR Code & SBP Redirect Enhancements --- */
+.donate-modal-card {
+  max-width: 440px !important;
+  text-align: left !important;
+  padding: 24px !important;
+}
+
+.donate-modal-header {
+  margin-bottom: 16px !important;
+}
+
+.donate-badge-sbp {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+}
+
 .donate-qr-wrapper {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: 10px !important;
-  padding: 14px !important;
-  border-radius: 12px !important;
+  gap: 12px !important;
+  padding: 16px !important;
+  border-radius: 14px !important;
   background: var(--card) !important;
   border: 1px solid var(--line) !important;
   text-align: center !important;
   margin: 4px 0 !important;
 }
-.donate-qr-code {
-  width: 180px !important;
-  height: 180px !important;
-  padding: 8px !important;
+
+/* Crisp White Plate for high-contrast scanning */
+.donate-qr-plate {
+  width: 210px !important;
+  height: 210px !important;
   background: #ffffff !important;
-  border-radius: 10px !important;
+  border-radius: 16px !important;
+  padding: 15px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+  box-sizing: border-box !important;
+  border: 2px solid #ffffff !important;
 }
+
+.donate-qr-code {
+  width: 180px !important;
+  height: 180px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 .donate-qr-code canvas,
 .donate-qr-code img {
-  width: 100% !important;
-  height: 100% !important;
+  width: 180px !important;
+  height: 180px !important;
+  aspect-ratio: 1 / 1 !important;
   display: block !important;
-  border-radius: 4px !important;
+  margin: 0 auto !important;
 }
+
+.donate-qr-code canvas + img {
+  display: none !important;
+}
+
 .donate-qr-hint {
   font-size: 11px !important;
   line-height: 1.4 !important;
@@ -843,7 +886,21 @@ body:not(.dark) .donate-preset-btn.active {
   max-width: 290px !important;
 }
 
-
+.donate-action-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 12px 16px !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  border-radius: 10px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+}
 /* ==========================================================================
    MOBILE & TOUCH-FIRST MASTER OVERHAUL (iOS & Android)
    ========================================================================== */
@@ -1139,10 +1196,22 @@ aside .side-note {
     padding: 9px 2px !important;
     font-size: 12px !important;
   }
-  .donate-qr-code {
-    width: 160px !important;
-    height: 160px !important;
+  
+  .donate-qr-plate {
+    width: 194px !important;
+    height: 194px !important;
+    padding: 12px !important;
   }
+  .donate-qr-code {
+    width: 170px !important;
+    height: 170px !important;
+  }
+  .donate-qr-code canvas,
+  .donate-qr-code img {
+    width: 170px !important;
+    height: 170px !important;
+  }
+
 
   /* Economic & Methodology Grids */
   .econ-layout, .method-grid, .tax-grid, .engineering-grid, .finance-grid {
