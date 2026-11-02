@@ -5,16 +5,18 @@ function initDonation() {
   const closeBtn = $('#closeDonateBtn');
   if (!donateBtn || !donateModal) return;
 
+  const DEFAULT_PHONE = '+7 (991) 353-63-72';
+  const DEFAULT_BANK = 'Т-Банк / Сбер';
+  const DEFAULT_RECIPIENT = 'Арсен Петросян Юрьевич';
+
   function syncDonateDetails() {
-    const phone = localStorage.getItem('upk_portal:donate_phone') || '+7 (900) 000-00-00';
-    const bank = localStorage.getItem('upk_portal:donate_bank') || 'Т-Банк (Тинькофф) / Сбер';
-    const recipient = localStorage.getItem('upk_portal:donate_recipient') || 'Студенческий совет УПК';
-    const link = localStorage.getItem('upk_portal:donate_link') || '';
+    const phone = localStorage.getItem('upk_portal:donate_phone') || DEFAULT_PHONE;
+    const bank = localStorage.getItem('upk_portal:donate_bank') || DEFAULT_BANK;
+    const recipient = localStorage.getItem('upk_portal:donate_recipient') || DEFAULT_RECIPIENT;
 
     const phoneEl = $('#donatePhoneText');
     const bankEl = $('#donateBankText');
     const recipientEl = $('#donateRecipientText');
-    const cardLinkBtn = $('#donateCardLinkBtn');
     const sbpBtn = $('#donateSbpLinkBtn');
 
     if (phoneEl) phoneEl.textContent = phone;
@@ -23,54 +25,38 @@ function initDonation() {
 
     const cleanPhone = phone.replace(/[^\d+]/g, '');
 
-    if (sbpBtn) {
-      if (link) {
-        sbpBtn.href = link;
-        sbpBtn.target = '_blank';
-        sbpBtn.rel = 'noopener';
-        sbpBtn.onclick = null;
+    const copyPhoneAction = () => {
+      const onDone = () => {
+        showToast('✓ Номер ' + cleanPhone + ' скопирован! Переведите в Т-Банк или Сбер через СБП.');
+        if (sbpBtn) {
+          const original = sbpBtn.textContent;
+          sbpBtn.textContent = '✓ Номер скопирован!';
+          setTimeout(() => { sbpBtn.textContent = original; }, 2000);
+        }
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(cleanPhone).then(onDone).catch(() => {
+          fallbackCopy(cleanPhone);
+          onDone();
+        });
       } else {
-        sbpBtn.removeAttribute('target');
-        sbpBtn.href = 'tel:' + cleanPhone;
-        sbpBtn.onclick = (e) => {
-          const onDone = () => {
-            showToast('✓ Номер телефона для СБП скопирован!');
-          };
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(cleanPhone).then(onDone).catch(() => {
-              fallbackCopy(cleanPhone);
-              onDone();
-            });
-          } else {
-            fallbackCopy(cleanPhone);
-            onDone();
-          }
-        };
+        fallbackCopy(cleanPhone);
+        onDone();
       }
-    }
+    };
 
-    if (cardLinkBtn) {
-      if (link) {
-        cardLinkBtn.href = link;
-        cardLinkBtn.onclick = null;
-      } else {
-        cardLinkBtn.href = '#';
-        cardLinkBtn.onclick = (e) => {
-          e.preventDefault();
-          showToast('Укажите ссылку на сбор средств в панели администратора');
-        };
-      }
+    if (sbpBtn) {
+      sbpBtn.onclick = copyPhoneAction;
+      sbpBtn.textContent = '⚡ Скопировать номер для СБП (' + cleanPhone + ')';
     }
 
     const admPhone = $('#adminDonatePhone');
     const admBank = $('#adminDonateBank');
     const admRecipient = $('#adminDonateRecipient');
-    const admLink = $('#adminDonateLink');
 
-    if (admPhone && !admPhone.value) admPhone.value = localStorage.getItem('upk_portal:donate_phone') || '';
-    if (admBank && !admBank.value) admBank.value = localStorage.getItem('upk_portal:donate_bank') || '';
-    if (admRecipient && !admRecipient.value) admRecipient.value = localStorage.getItem('upk_portal:donate_recipient') || '';
-    if (admLink && !admLink.value) admLink.value = localStorage.getItem('upk_portal:donate_link') || '';
+    if (admPhone && !admPhone.value) admPhone.value = phone;
+    if (admBank && !admBank.value) admBank.value = bank;
+    if (admRecipient && !admRecipient.value) admRecipient.value = recipient;
   }
 
   function openDonateModal() {
@@ -110,10 +96,10 @@ function initDonation() {
   const copyPhoneBtn = $('#copyPhoneBtn');
   if (copyPhoneBtn) {
     copyPhoneBtn.onclick = () => {
-      const phone = localStorage.getItem('upk_portal:donate_phone') || '+7 (900) 000-00-00';
+      const phone = localStorage.getItem('upk_portal:donate_phone') || DEFAULT_PHONE;
       const clean = phone.replace(/[^\d+]/g, '');
       const onDone = () => {
-        showToast('✓ Номер телефона для СБП скопирован!');
+        showToast('✓ Номер ' + clean + ' скопирован для СБП!');
         copyPhoneBtn.textContent = '✓ Скопировано';
         setTimeout(() => { copyPhoneBtn.textContent = '📋 Копировать'; }, 1800);
       };
@@ -135,17 +121,15 @@ function initDonation() {
       const p = $('#adminDonatePhone')?.value.trim();
       const b = $('#adminDonateBank')?.value.trim();
       const r = $('#adminDonateRecipient')?.value.trim();
-      const l = $('#adminDonateLink')?.value.trim();
 
       if (p) localStorage.setItem('upk_portal:donate_phone', p);
       if (b) localStorage.setItem('upk_portal:donate_bank', b);
       if (r) localStorage.setItem('upk_portal:donate_recipient', r);
-      if (l) localStorage.setItem('upk_portal:donate_link', l);
 
       syncDonateDetails();
       const statusEl = $('#adminDonateStatus');
       if (statusEl) {
-        statusEl.textContent = 'Реквизиты пожертвований успешно сохранены!';
+        statusEl.textContent = 'Реквизиты СБП успешно сохранены!';
         setTimeout(() => { statusEl.textContent = ''; }, 3000);
       }
       showToast('✓ Реквизиты СБП сохранены');
