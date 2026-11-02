@@ -1,3 +1,12 @@
+
+/* Universal Hidden & Pointer Guard */
+[hidden], .modal[hidden], .sidebar-overlay:not(.visible) {
+  pointer-events: none !important;
+}
+.modal[hidden] {
+  display: none !important;
+}
+
 /* ==========================================================================
    THEME ARCHITECTURE: LIGHT & DEEP NOIR DARK EMERALD
    ========================================================================== */
