@@ -8,6 +8,7 @@ function initDonation() {
   const DEFAULT_PHONE = '+7 (991) 353-63-72';
   const DEFAULT_BANK = 'Т-Банк / Сбер';
   const DEFAULT_RECIPIENT = 'Арсен Петросян Юрьевич';
+  const DEFAULT_LINK = 'https://t.tb.ru/pm_short/5RhXrXNW4lC';
 
   function getCleanPhone() {
     const phone = localStorage.getItem('upk_portal:donate_phone') || DEFAULT_PHONE;
@@ -26,14 +27,9 @@ function initDonation() {
     qrBox.innerHTML = '';
 
     const cleanPhone = getCleanPhone();
-    const link = localStorage.getItem('upk_portal:donate_link') || '';
+    const link = localStorage.getItem('upk_portal:donate_link') || DEFAULT_LINK;
 
-    let qrPayload = link;
-    if (link) {
-      qrPayload = link.includes('?') ? (link + '&amount=' + amount) : (link + '?amount=' + amount);
-    } else {
-      qrPayload = 'https://qr.nspk.ru/transfer?phone=' + cleanPhone + '&amount=' + amount + '&bank=tbank';
-    }
+    let qrPayload = link || DEFAULT_LINK;
 
     try {
       new QRCode(qrBox, {
@@ -53,7 +49,7 @@ function initDonation() {
     const phone = localStorage.getItem('upk_portal:donate_phone') || DEFAULT_PHONE;
     const bank = localStorage.getItem('upk_portal:donate_bank') || DEFAULT_BANK;
     const recipient = localStorage.getItem('upk_portal:donate_recipient') || DEFAULT_RECIPIENT;
-    const link = localStorage.getItem('upk_portal:donate_link') || '';
+    const link = localStorage.getItem('upk_portal:donate_link') || DEFAULT_LINK;
 
     const phoneEl = $('#donatePhoneText');
     const bankEl = $('#donateBankText');
@@ -69,7 +65,7 @@ function initDonation() {
 
     if (sbpBtn) {
       sbpBtn.onclick = () => {
-        const currentLink = localStorage.getItem('upk_portal:donate_link') || '';
+        const currentLink = localStorage.getItem('upk_portal:donate_link') || DEFAULT_LINK;
         const currentAmount = getSelectedAmount();
         const clean = getCleanPhone();
 
