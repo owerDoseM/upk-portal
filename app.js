@@ -802,36 +802,27 @@ function initAiScanner() {
 
       const promptText = `Ты — специализированный помощник для студенческого портала Узловского политехнического колледжа (УПК).\nПеред тобой фото официального документа "ИЗМЕНЕНИЯ В РАСПИСАНИИ" (замены).\nИзвлеки:\n1. Заголовок: дата, день недели, примечание.\n2. Таблицу замен: Группа, Пара (1-5), Предмет, ФИО преподавателя, Аудитория.\nЕсли пара указана диапазоном 1-3 — продублируй для 1, 2 и 3 пары.\nФормат ответа JSON:\n{\n  "date": "02 ноября 2026 г.",\n  "day": "Пн",\n  "week_type": "под чертой",\n  "note": "Изменения на 02 ноября 2026 г (понедельник, под чертой)",\n  "groups": {\n    "ХТ-26": [\n      ["Информатика", "Исайкина Н.А.", "207"],\n      ...5 пар\n    ]\n  }\n}`;
 
-      const models = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
-      let geminiRes = null;
-      let lastErr = null;
-      for (const m of models) {
-        try {
-          const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + m + ':generateContent?key=' + apiKey;
-          const r = await fetch(geminiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }, ...imageParts] }],
-              generationConfig: { responseMimeType: 'application/json' }
-            })
-          });
-          if (r.ok) {
-            geminiRes = r;
-            break;
-          } else {
-            lastErr = await r.text();
-          }
-        } catch (e) {
-          lastErr = e.message;
+      const targetModel = 'gemini-3.8-flash';
+      const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + targetModel + ':generateContent?key=' + apiKey;
+
+      const r = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: promptText }, ...imageParts] }],
+          generationConfig: { responseMimeType: 'application/json' }
+        })
+      });
+
+      if (!r.ok) {
+        const errText = await r.text();
+        if (errText.includes('User location is not supported')) {
+          throw new Error('Google Gemini API блокирует запросы из региона РФ (User location is not supported). Пожалуйста, включите VPN в браузере (выберите локацию Нидерланды, Германия или США) и повторите сканирование.');
         }
+        throw new Error('Gemini API (' + r.status + '): ' + errText);
       }
 
-      if (!geminiRes) {
-        throw new Error('Gemini API Error: ' + lastErr);
-      }
-
-      const resJson = await geminiRes.json();
+      const resJson = await r.json();
       const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!rawText) throw new Error('Пустой ответ от Gemini Vision');
       const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
