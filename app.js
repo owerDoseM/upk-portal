@@ -663,7 +663,24 @@ function allCalc(){calcEconomy();calcTaxes();calcEngineering();calcDepreciation(
 const storageKey='upkStudentPortal';
 function saveState(e){if(e&&e.target.id)try{localStorage.setItem(storageKey+':'+e.target.id,e.target.value)}catch(_){}}
 function restoreState(){const profile=localStorage.getItem(storageKey+':profileSelect')||'economy';$('#profileSelect').value=profile;$('#profileSelectMobile').value=profile;$$('input,select').forEach(e=>{const v=localStorage.getItem(storageKey+':'+e.id);if(v!==null&&!['profileSelect','profileSelectMobile'].includes(e.id))e.value=v});applyProfile(profile)}
-function applyProfile(profile){$$('.nav-item[data-profile]').forEach(b=>b.hidden=profile!=='admin'&&b.dataset.profile!==profile);const select=$('#groupSelect'),options=[...select.options];options.forEach(o=>o.hidden=profile!=='admin'&&o.dataset.profile!==profile);const available=options.find(o=>!o.hidden);const curSelected = select.selectedOptions ? select.selectedOptions[0] : (select.options ? select.options[select.selectedIndex] : null); if(curSelected&&curSelected.hidden&&available)select.value=available.value;renderSchedule();summary();if($('#editorGroup'))editorRows()}
+function applyProfile(profile){
+  try {
+    $$('.nav-item[data-profile]').forEach(b=>{ if (b && b.dataset) b.hidden = profile !== 'admin' && b.dataset.profile !== profile; });
+    const select = $('#groupSelect');
+    if (select) {
+      const options = [...select.options];
+      options.forEach(o => { if (o) o.hidden = profile !== 'admin' && (o.dataset?.profile || '') !== profile; });
+      const available = options.find(o => !o.hidden);
+      const curSelected = select.selectedOptions ? select.selectedOptions[0] : (select.options ? select.options[select.selectedIndex] : null);
+      if (curSelected && curSelected.hidden && available) select.value = available.value;
+    }
+    renderSchedule();
+    if ($('.nav-item.active')?.dataset?.section === 'summary') summary();
+    if ($('#editorGroup')) editorRows();
+  } catch(e) {
+    console.warn('applyProfile error:', e);
+  }
+}
 function csvData(){const profile=$('#profileSelect').value,rows=[['Раздел','Показатель','Значение'],['Параметры','Профиль',getSelectedOptionText($('#profileSelect'))],['Параметры','Группа',$('#groupSelect').value]];if(profile!=='technical')rows.push(['Финансы','Выручка',$('#mRevenue').textContent],['Финансы','Прибыль / убыток',$('#mProfit').textContent],['Финансы','Точка безубыточности',$('#mBep').textContent],['Финансы','Запас финансовой прочности',$('#mSafety').textContent],['Финансы','Налоговая рекомендация',$('#taxCompare').textContent],['Финансы','Кредит / лизинг',$('#financeCompare').textContent]);if(profile!=='economy')rows.push(['Технология','Материал',getSelectedOptionText($('#metal'))],['Технология','Плотность',$('#metal').value+' кг/м³'],['Технология','Масса',$('#metalResult').textContent],['Технология','Напряжение / ток',$('#volt').value+' В / '+$('#amp').value+' А'],['Технология','Мощность',$('#powerResult').textContent]);return '﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\r\n')}
 function downloadCsv(){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csvData());a.download='upk-summary.csv';a.click()}
 function copySummary(){const text=$('#summaryContent').innerText;const done=()=>{const b=$('#copyBtn');b.textContent='Скопировано';setTimeout(()=>b.textContent='Копировать для Word',1200)};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(()=>{fallbackCopy(text);done()});else{fallbackCopy(text);done()}}
