@@ -291,11 +291,11 @@ const baseSchedule={
  },
 };
 const periods=[
- {number:1,start:'08:30',firstEnd:'09:15',breakStart:'09:15',breakEnd:'09:20',end:'10:00',next:'10:10'},
- {number:2,start:'10:10',firstEnd:'10:55',breakStart:'10:55',breakEnd:'11:00',end:'11:40',next:'12:10'},
- {number:3,start:'12:10',firstEnd:'12:55',breakStart:'12:55',breakEnd:'13:00',end:'13:40',next:'13:50'},
- {number:4,start:'13:50',firstEnd:'14:35',breakStart:'14:35',breakEnd:'14:40',end:'15:20',next:'15:30'},
- {number:5,start:'15:30',firstEnd:'16:15',breakStart:'16:15',breakEnd:'16:20',end:'17:00',next:null}
+ {number:1,start:'08:30',firstEnd:'09:15',breakStart:'09:15',breakEnd:'09:20',end:'10:05',next:'10:15'},
+ {number:2,start:'10:15',firstEnd:'11:00',breakStart:'11:00',breakEnd:'11:05',end:'11:50',next:'12:20'},
+ {number:3,start:'12:20',firstEnd:'13:05',breakStart:'13:05',breakEnd:'13:10',end:'13:55',next:'14:05'},
+ {number:4,start:'14:05',firstEnd:'14:50',breakStart:'14:50',breakEnd:'14:55',end:'15:40',next:'15:50'},
+ {number:5,start:'15:50',firstEnd:'16:35',breakStart:'16:35',breakEnd:'16:40',end:'17:25',next:null}
 ];
 function clockMinutes(value){const [hours,minutes]=value.split(':').map(Number);return hours*60+minutes}
 function minutesUntil(time,current){return Math.max(0,Math.ceil(clockMinutes(time)-current))}
@@ -391,7 +391,7 @@ const rooms=[
  ['спортзал','Спорткомплекс','Физическая культура','Волков И.И.','1 этаж']
 ];
 let selectedDay=Math.min(5,Math.max(0,new Date().getDay()-1)), chart, lastClockMinute=null, lastBellMinute=null, deferredPrompt=null, filterOnlyFree=false, focusCurrentOnRender=true, soundEnabled=localStorage.getItem('upk_sound_enabled')==='true', bellAudioContext=null;
-const schoolBellTimes=new Set(['08:30','09:15','09:20','10:00','10:10','10:55','11:00','11:40','12:10','12:55','13:00','13:40','13:50','14:35','14:40','15:20','15:30','16:15','16:20','17:00']);
+const schoolBellTimes=new Set(['08:30','09:15','09:20','10:05','10:15','11:00','11:05','11:50','12:20','13:05','13:10','13:55','14:05','14:50','14:55','15:40','15:50','16:35','16:40','17:25']);
 function getBellAudioContext(){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)return null;if(!bellAudioContext)bellAudioContext=new AudioContextClass();return bellAudioContext}
 function playSchoolBell(){const context=getBellAudioContext();if(!context)return;if(context.state==='suspended')context.resume().catch(error=>console.warn('Не удалось активировать аудиоконтекст звонка:',error));const start=context.currentTime;[[587.33,0],[880,0.22]].forEach(([frequency,delay])=>{const oscillator=context.createOscillator(),gain=context.createGain(),noteStart=start+delay;oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,noteStart);gain.gain.setValueAtTime(0.0001,noteStart);gain.gain.exponentialRampToValueAtTime(0.12,noteStart+0.035);gain.gain.exponentialRampToValueAtTime(0.0001,noteStart+0.85);oscillator.connect(gain);gain.connect(context.destination);oscillator.start(noteStart);oscillator.stop(noteStart+0.9)})}
 function updateSoundButton(){const button=$('#soundBtn');if(!button)return;button.classList.toggle('sound-enabled',soundEnabled);button.title=`Звук звонка (${soundEnabled?'вкл':'выкл'})`;button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(soundEnabled))}
@@ -446,6 +446,12 @@ function getBentoCallStatus(testDate = new Date()) {
     }
     if (period.next && now >= end && now < clockMinutes(period.next)) {
       const m = minutesUntil(period.next, now);
+      if (period.number === 2) {
+        return {
+          full: 'Сейчас большой обеденный перерыв. До звонка на 3 пару осталось: ' + m + ' мин.',
+          short: 'Обед (до 3 пары ' + m + ' мин)'
+        };
+      }
       return {
         full: 'Сейчас перемена. До звонка на ' + (period.number + 1) + ' пару осталось: ' + m + ' мин.',
         short: 'Сейчас перемена (до ' + (period.number + 1) + ' пары ' + m + ' мин)'

@@ -1289,3 +1289,7 @@ aside .side-note {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Bell Schedule Lunch Highlight */
+.bell-list .bell-lunch { color: var(--brand, #10b981) !important; font-weight: 600; }
+.bell-list .bell-lunch b { color: var(--brand, #10b981) !important; }
