@@ -230,7 +230,86 @@ function updateSoundButton(){const button=$('#soundBtn');if(!button)return;butto
 function toggleSchoolBell(){const nextState=!soundEnabled;if(nextState){const context=getBellAudioContext();if(!context){alert('Этот браузер не поддерживает Web Audio API.');return}if(context.state==='suspended')context.resume().catch(error=>console.warn('Не удалось включить аудиозвонок:',error))}soundEnabled=nextState;localStorage.setItem('upk_sound_enabled',String(soundEnabled));updateSoundButton()}
 function initSchoolBell(){updateSoundButton();$('#soundBtn').onclick=toggleSchoolBell;window.addEventListener('pointerdown',()=>{if(soundEnabled){const context=getBellAudioContext();if(context&&context.state==='suspended')context.resume().catch(error=>console.warn('Не удалось активировать аудиозвонок после взаимодействия:',error))}},{once:true})}
 function animateMetric(el,value,format){const from=Number(el.dataset.value)||0,to=Number(value)||0,start=performance.now(),duration=600;el.dataset.value=to;function frame(now){const progress=Math.min(1,(now-start)/duration),eased=1-Math.pow(1-progress,4);el.textContent=format(from+(to-from)*eased);if(progress<1)requestAnimationFrame(frame)}requestAnimationFrame(frame)}
-function clock(){const d=new Date(),minuteKey=Math.floor(d.getTime()/60000),minuteChanged=lastClockMinute!==null&&lastClockMinute!==minuteKey;lastClockMinute=minuteKey;$('#clock').textContent=d.toLocaleTimeString('ru-RU');$('#todayDate').textContent=d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});$('#todayDay').textContent=d.toLocaleDateString('ru-RU',{weekday:'long'});if(soundEnabled&&d.getDay()!==0&&d.getSeconds()===0&&schoolBellTimes.has(`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`)&&lastBellMinute!==minuteKey){lastBellMinute=minuteKey;playSchoolBell()}if(minuteChanged){renderSchedule();renderRooms();return}const now=d.getHours()*60+d.getMinutes()+d.getSeconds()/60;const firstStart=clockMinutes(periods[0].start);let status='Занятия завершены на сегодня. Кайфуйте! :)';if(d.getDay()!==0){if(now<firstStart){status=`Занятия ещё не начались. До звонка на 1 пару осталось: ${minutesUntil(periods[0].start,now)} мин.`}else if(now<clockMinutes(periods[periods.length-1].end)){for(const period of periods){const start=clockMinutes(period.start),firstEnd=clockMinutes(period.firstEnd),breakEnd=clockMinutes(period.breakEnd),end=clockMinutes(period.end);if(now>=start&&now<firstEnd){status=`Сейчас идёт ${period.number} пара. До пятиминутки осталось: ${minutesUntil(period.breakStart,now)} мин.`;break}if(now>=firstEnd&&now<breakEnd){status=`Сейчас пятиминутка внутри ${period.number} пары. До звонка на 2 часть: ${minutesUntil(period.breakEnd,now)} мин.`;break}if(now>=breakEnd&&now<end){status=`Сейчас идёт ${period.number} пара. До звонка осталось: ${minutesUntil(period.end,now)} мин.`;break}if(period.next&&now>=end&&now<clockMinutes(period.next)){status=`Сейчас перемена. До звонка на ${period.number+1} пару осталось: ${minutesUntil(period.next,now)} мин.`;break}}}}$('#lessonStatus').textContent=status;}
+function getBentoCallStatus(testDate = new Date()) {
+  const d = testDate;
+  if (d.getDay() === 0) return { full: 'Занятия завершены на сегодня. Кайфуйте! :)', short: 'Выходной день' };
+  const now = d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60;
+  const firstStart = clockMinutes(periods[0].start);
+  if (now < firstStart) {
+    const m = minutesUntil(periods[0].start, now);
+    return {
+      full: 'Занятия ещё не начались. До звонка на 1 пару осталось: ' + m + ' мин.',
+      short: 'До 1 пары: ' + m + ' мин'
+    };
+  }
+  const lastEnd = clockMinutes(periods[periods.length - 1].end);
+  if (now >= lastEnd) {
+    return {
+      full: 'Занятия завершены на сегодня. Кайфуйте! :)',
+      short: 'Занятия завершены'
+    };
+  }
+  for (const period of periods) {
+    const start = clockMinutes(period.start);
+    const firstEnd = clockMinutes(period.firstEnd);
+    const breakEnd = clockMinutes(period.breakEnd);
+    const end = clockMinutes(period.end);
+
+    if (now >= start && now < firstEnd) {
+      const m = minutesUntil(period.breakStart, now);
+      return {
+        full: 'Сейчас идёт ' + period.number + ' пара. До пятиминутки осталось: ' + m + ' мин.',
+        short: 'Сейчас идёт ' + period.number + ' пара (до перерыва ' + m + ' мин)'
+      };
+    }
+    if (now >= firstEnd && now < breakEnd) {
+      const m = minutesUntil(period.breakEnd, now);
+      return {
+        full: 'Сейчас пятиминутка внутри ' + period.number + ' пары. До звонка на 2 часть: ' + m + ' мин.',
+        short: 'Пятиминутка (до 2 части ' + m + ' мин)'
+      };
+    }
+    if (now >= breakEnd && now < end) {
+      const m = minutesUntil(period.end, now);
+      return {
+        full: 'Сейчас идёт ' + period.number + ' пара. До звонка осталось: ' + m + ' мин.',
+        short: 'Сейчас идёт ' + period.number + ' пара (до звонка ' + m + ' мин)'
+      };
+    }
+    if (period.next && now >= end && now < clockMinutes(period.next)) {
+      const m = minutesUntil(period.next, now);
+      return {
+        full: 'Сейчас перемена. До звонка на ' + (period.number + 1) + ' пару осталось: ' + m + ' мин.',
+        short: 'Сейчас перемена (до ' + (period.number + 1) + ' пары ' + m + ' мин)'
+      };
+    }
+  }
+  return { full: 'Вне занятий', short: 'Вне занятий' };
+}
+
+function clock(){
+  const d=new Date(),minuteKey=Math.floor(d.getTime()/60000),minuteChanged=lastClockMinute!==null&&lastClockMinute!==minuteKey;
+  lastClockMinute=minuteKey;
+  $('#clock').textContent=d.toLocaleTimeString('ru-RU');
+  $('#todayDate').textContent=d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  $('#todayDay').textContent=d.toLocaleDateString('ru-RU',{weekday:'long'});
+  if(soundEnabled&&d.getDay()!==0&&d.getSeconds()===0&&schoolBellTimes.has(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'))&&lastBellMinute!==minuteKey){
+    lastBellMinute=minuteKey;
+    playSchoolBell();
+  }
+  const bellStatus = getBentoCallStatus(d);
+  const ls = $('#lessonStatus');
+  if (ls) ls.textContent = bellStatus.full;
+  const bs = $('#bentoCallStatus');
+  if (bs) {
+    bs.textContent = bellStatus.short;
+    bs.title = bellStatus.full;
+  }
+  if(minuteChanged){
+    renderSchedule();
+    renderRooms();
+  }
+}
 function renderDays(){const todayIndex=new Date().getDay()-1;$('#dayTabs').innerHTML=days.map((d,i)=>`<button class="${i===selectedDay?'active':''}" data-day="${i}">${d}${i===todayIndex?' <span class="today-marker" title="Сегодня">●</span>':''}</button>`).join('');$$('#dayTabs button').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;focusCurrentOnRender=selectedDay===new Date().getDay()-1;renderSchedule()})}
 function selectTomorrow(){const day=new Date().getDay();selectedDay=day>=1&&day<=5?day:0;focusCurrentOnRender=false;renderSchedule()}
 function updateTomorrowButton(){const btn=$('#tomorrowBtn');if(!btn)return;const day=new Date().getDay(),tomorrowIndex=day>=1&&day<=5?day:0;btn.hidden=selectedDay===tomorrowIndex}
@@ -595,12 +674,9 @@ function updateBentoTelemetry() {
   }
 
   if (statusBadge) {
-    const lessonStatus = $('#lessonStatus');
-    if (lessonStatus && lessonStatus.textContent.trim()) {
-      statusBadge.textContent = lessonStatus.textContent.replace(/\s+/g, ' ').slice(0, 32);
-    } else {
-      statusBadge.textContent = 'Вне занятий';
-    }
+    const bellStatus = getBentoCallStatus();
+    statusBadge.textContent = bellStatus.short;
+    statusBadge.title = bellStatus.full;
   }
 
   if (modeBadge) {
