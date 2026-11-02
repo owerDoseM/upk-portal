@@ -310,7 +310,7 @@ const standardBellTimes = new Set(['08:30','09:15','09:20','10:05','10:15','11:0
 const specialBellTimes_2026_11_03 = new Set(['08:30','09:10','09:15','09:50','10:00','10:40','10:45','11:20','11:40','12:20','12:25','13:00','13:10','13:50','13:55','14:30','14:40','15:20','15:25','16:00']);
 
 let periods = standardPeriods;
-let bellScheduleMode = 'nov3';
+let bellScheduleMode = isNov3() ? 'nov3' : 'standard';
 let userOverrodeBellMode = false;
 
 function isNov3(date = new Date()) {
@@ -325,7 +325,8 @@ function getPeriodsForDay(dayIndex) {
   if (userOverrodeBellMode) {
     return bellScheduleMode === 'nov3' ? specialPeriods_2026_11_03 : standardPeriods;
   }
-  return dayIndex === 1 ? specialPeriods_2026_11_03 : standardPeriods;
+  const isNov3Day = (dayIndex === 1 && (isNov3() || (new Date().getFullYear() === 2026 && new Date().getMonth() === 10 && new Date().getDate() === 2)));
+  return isNov3Day ? specialPeriods_2026_11_03 : standardPeriods;
 }
 
 function renderBellList(mode) {
@@ -583,7 +584,8 @@ function renderSchedule(){
   renderDays();
   updateTomorrowButton();
   if(!userOverrodeBellMode){
-    bellScheduleMode=(selectedDay===1)?'nov3':'standard';
+    const isNov3Day = (selectedDay === 1 && (isNov3() || (new Date().getFullYear() === 2026 && new Date().getMonth() === 10 && new Date().getDate() === 2)));
+    bellScheduleMode = isNov3Day ? 'nov3' : 'standard';
   }
   renderBellList(bellScheduleMode);
   const dayPeriods=getPeriodsForDay(selectedDay);
@@ -672,28 +674,54 @@ function updateDeadline(id){const list=JSON.parse(localStorage.getItem('upk_dead
 function deleteDeadline(id){saveDeadlines(JSON.parse(localStorage.getItem('upk_deadlines')||'[]').filter(x=>x.id!==id))}
 function clearCompletedDeadlines(){saveDeadlines(JSON.parse(localStorage.getItem('upk_deadlines')||'[]').filter(item=>!item.done))}
 function addDeadline(){const title=$('#deadlineTitle').value.trim(),subject=$('#deadlineSubject').value.trim(),date=$('#deadlineDate').value;if(!title||!date)return;const list=JSON.parse(localStorage.getItem('upk_deadlines')||'[]');list.push({id:Date.now().toString(),title,subject,date,done:false});saveDeadlines(list);$('#deadlineTitle').value='';$('#deadlineSubject').value='';$('#deadlineDate').value=''}
-function openSidebar(){ const s=$('#sidebar'); if(s){ s.scrollTop=0; s.classList.add('open'); } const o=$('#sidebarOverlay'); if(o) o.classList.add('visible'); }
-function closeSidebar(){ const s=$('#sidebar'); if(s) s.classList.remove('open'); const o=$('#sidebarOverlay'); if(o) o.classList.remove('visible'); }
+function openSidebar(){
+  const s = $('#sidebar');
+  if (s) { s.scrollTop = 0; s.classList.add('open'); }
+  const o = $('#sidebarOverlay');
+  if (o && window.innerWidth <= 700) o.classList.add('visible');
+}
+function closeSidebar(){
+  const s = $('#sidebar');
+  if (s) s.classList.remove('open');
+  const o = $('#sidebarOverlay');
+  if (o) o.classList.remove('visible');
+}
 function initInstallPrompt(){
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   const btn = $('#installPwaBtn');
   if (isStandalone) { if (btn) btn.hidden = true; return; }
-  window.addEventListener('beforeinstallprompt',event=>{
+  
+  function updateInstallBtnLabel() {
+    if (!btn) return;
+    const isMobile = window.innerWidth <= 700 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    btn.textContent = isMobile ? '↓ Установить на телефон' : '↓ Установить приложение';
+  }
+  updateInstallBtnLabel();
+  window.addEventListener('resize', updateInstallBtnLabel);
+
+  window.addEventListener('beforeinstallprompt', event => {
     event.preventDefault();
-    deferredPrompt=event;
+    deferredPrompt = event;
     if (btn) btn.hidden = false;
   });
-  window.addEventListener('appinstalled',()=>{
-    deferredPrompt=null;
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
     if (btn) btn.hidden = true;
   });
   if (btn) {
     btn.onclick = async () => {
-      if(!deferredPrompt) return;
+      if (!deferredPrompt) {
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          alert('Чтобы установить на iPhone: нажмите кнопку «Поделиться» (иконка со стрелкой) внизу экрана в Safari и выберите «На экран "Домой"».');
+        } else {
+          alert('Для установки приложения: нажмите меню браузера (три точки) и выберите «Установить приложение» или «Добавить на главный экран».');
+        }
+        return;
+      }
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
-      deferredPrompt=null;
-      btn.hidden=true;
+      deferredPrompt = null;
+      btn.hidden = true;
     };
   }
 }
@@ -802,27 +830,49 @@ function initAiScanner() {
 
       const promptText = `Ты — специализированный помощник для студенческого портала Узловского политехнического колледжа (УПК).\nПеред тобой фото официального документа "ИЗМЕНЕНИЯ В РАСПИСАНИИ" (замены).\nИзвлеки:\n1. Заголовок: дата, день недели, примечание.\n2. Таблицу замен: Группа, Пара (1-5), Предмет, ФИО преподавателя, Аудитория.\nЕсли пара указана диапазоном 1-3 — продублируй для 1, 2 и 3 пары.\nФормат ответа JSON:\n{\n  "date": "02 ноября 2026 г.",\n  "day": "Пн",\n  "week_type": "под чертой",\n  "note": "Изменения на 02 ноября 2026 г (понедельник, под чертой)",\n  "groups": {\n    "ХТ-26": [\n      ["Информатика", "Исайкина Н.А.", "207"],\n      ...5 пар\n    ]\n  }\n}`;
 
-      const targetModel = 'gemini-3.8-flash';
-      const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + targetModel + ':generateContent?key=' + apiKey;
+      const candidateModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-lite-latest'];
+      let resJson = null;
+      let lastErr = null;
 
-      const r = await fetch(geminiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }, ...imageParts] }],
-          generationConfig: { responseMimeType: 'application/json' }
-        })
-      });
+      for (const model of candidateModels) {
+        try {
+          statusEl.textContent = '⏳ Анализирую расписание через Gemini Vision (' + model + ')...';
+          const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey;
+          const r = await fetch(geminiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }, ...imageParts] }],
+              generationConfig: { responseMimeType: 'application/json' }
+            }),
+            signal: AbortSignal.timeout(30000)
+          });
 
-      if (!r.ok) {
-        const errText = await r.text();
-        if (errText.includes('User location is not supported')) {
-          throw new Error('Google Gemini API блокирует запросы из региона РФ (User location is not supported). Пожалуйста, включите VPN в браузере (выберите локацию Нидерланды, Германия или США) и повторите сканирование.');
+          if (!r.ok) {
+            const errText = await r.text();
+            if (errText.includes('User location is not supported')) {
+              throw new Error('Google Gemini API блокирует запросы из региона РФ (User location is not supported). Пожалуйста, включите VPN в браузере (Нидерланды, Германия или США) и повторите сканирование.');
+            }
+            if (r.status === 503 || r.status === 429 || r.status === 404) {
+              console.warn('Модель ' + model + ' временно перегружена (' + r.status + '), переключаюсь на следующую...');
+              lastErr = new Error('Gemini (' + r.status + '): ' + errText);
+              continue;
+            }
+            throw new Error('Gemini API (' + r.status + '): ' + errText);
+          }
+
+          resJson = await r.json();
+          if (resJson) break;
+        } catch (err) {
+          lastErr = err;
+          if (err.message && err.message.includes('User location is not supported')) throw err;
+          console.warn('Ошибка с моделью ' + model + ':', err.message);
         }
-        throw new Error('Gemini API (' + r.status + '): ' + errText);
       }
 
-      const resJson = await r.json();
+      if (!resJson) {
+        throw lastErr || new Error('Не удалось получить ответ от Gemini API');
+      }
       const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!rawText) throw new Error('Пустой ответ от Gemini Vision');
       const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
