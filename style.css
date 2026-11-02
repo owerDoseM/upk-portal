@@ -750,30 +750,52 @@ body:not(.dark) .donate-preset-btn.active {
 .donate-sbp-details {
   display: flex !important;
   flex-direction: column !important;
-  gap: 8px !important;
-  padding: 12px 14px !important;
-  border-radius: 10px !important;
+  gap: 12px !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
   background: var(--card) !important;
   border: 1px solid var(--line) !important;
-  font-size: 12.5px !important;
+  font-size: 13px !important;
 }
 .sbp-data-row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 10px !important;
+  gap: 12px !important;
+  padding: 4px 0 !important;
+}
+.sbp-data-row:not(:last-child) {
+  border-bottom: 1px solid var(--line) !important;
+  padding-bottom: 10px !important;
 }
 .sbp-data-row span {
   color: var(--muted) !important;
+  flex-shrink: 0 !important;
+  font-size: 12.5px !important;
 }
 .sbp-data-row strong {
   color: var(--ink) !important;
   font-weight: 700 !important;
-  word-break: break-all !important;
+  word-break: normal !important;
+  text-align: right !important;
+}
+.sbp-phone-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: nowrap !important;
+}
+#donatePhoneText {
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  color: var(--brand2) !important;
+  letter-spacing: 0.3px !important;
 }
 .copy-chip {
-  padding: 4px 8px !important;
-  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
   border: 1px solid var(--line) !important;
   background: var(--card-subtle) !important;
   color: var(--ink) !important;
@@ -783,27 +805,14 @@ body:not(.dark) .donate-preset-btn.active {
   display: inline-flex !important;
   align-items: center !important;
   gap: 4px !important;
+  white-space: nowrap !important;
   transition: all var(--duration-fast) !important;
 }
 .copy-chip:hover {
   border-color: var(--brand) !important;
   background: var(--brand-light) !important;
   color: var(--brand2) !important;
-}
-.donate-action-btn {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  width: 100% !important;
-  padding: 11px 16px !important;
-  text-align: center !important;
-  text-decoration: none !important;
-  border-radius: 8px !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  box-sizing: border-box !important;
-  cursor: pointer !important;
+  transform: translateY(-1px) !important;
 }
 .donate-footer-note {
   font-size: 11px !important;
