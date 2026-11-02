@@ -1,9 +1,9 @@
-const CACHE_NAME='upk-portal-v42';
+const CACHE_NAME='upk-portal-v43';
 const ASSETS=[
   './',
   './index.html',
-  './style.css?v=42',
-  './app.js?v=42',
+  './style.css?v=43',
+  './app.js?v=43',
   './schedule.json',
   './manifest.json',
   './favicon.ico',
