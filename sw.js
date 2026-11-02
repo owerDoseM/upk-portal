@@ -1,9 +1,9 @@
-const CACHE_NAME='upk-portal-v26';
+const CACHE_NAME='upk-portal-v27';
 const ASSETS=[
   './',
   './index.html',
-  './style.css?v=26',
-  './app.js?v=26',
+  './style.css?v=27',
+  './app.js?v=27',
   './schedule.json',
   './manifest.json',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js',
