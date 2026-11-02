@@ -995,10 +995,11 @@ aside nav {
   flex: 0 0 auto !important;
 }
 aside .side-note {
-  margin-top: auto !important;
+  margin-top: 22px !important;
   margin-bottom: 12px !important;
   border-top: 1px solid var(--line) !important;
-  padding-top: 16px !important;
+  padding-top: 18px !important;
+  flex-shrink: 0 !important;
 }
 
 @media (max-width: 700px) {
@@ -1486,7 +1487,17 @@ aside .side-note {
     flex-shrink: 0 !important;
   }
   aside#sidebar .side-note {
-    margin-top: auto !important;
+    margin-top: 22px !important;
+    margin-bottom: 12px !important;
+    border-top: 1px solid var(--line) !important;
+    padding-top: 18px !important;
     flex-shrink: 0 !important;
+  }
+  .sidebar-overlay {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    z-index: -999 !important;
   }
 }
