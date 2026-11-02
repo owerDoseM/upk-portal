@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json?v=37">
   <title>Цифровой портал студента УПК</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=37">
+  <link rel="stylesheet" href="style.css?v=38">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body class="dark">
@@ -124,10 +124,12 @@
           </div>
         </div>
         <div class="donate-sbp-details">
-          <div class="sbp-data-row">
+          <div class="sbp-data-row sbp-phone-row">
             <span>Номер для СБП:</span>
-            <strong id="donatePhoneText">+7 (991) 353-63-72</strong>
-            <button id="copyPhoneBtn" class="copy-chip" type="button" title="Скопировать телефон">📋 Копировать</button>
+            <div class="sbp-phone-action">
+              <strong id="donatePhoneText">+7 (991) 353-63-72</strong>
+              <button id="copyPhoneBtn" class="copy-chip" type="button" title="Скопировать телефон">📋 Копировать</button>
+            </div>
           </div>
           <div class="sbp-data-row">
             <span>Банк:</span>
@@ -138,15 +140,6 @@
             <strong id="donateRecipientText">Арсен Петросян Юрьевич</strong>
           </div>
         </div>
-        <div class="donate-qr-wrapper">
-          <div class="donate-qr-plate">
-            <div id="donateQrCode" class="donate-qr-code"></div>
-          </div>
-          <small class="muted donate-qr-hint">Отсканируйте камерой телефона или в приложении банка для перевода через СБП</small>
-        </div>
-        <a id="donateSbpLinkBtn" class="primary donate-action-btn" href="https://t.tb.ru/pm_short/5RhXrXNW4lC" target="_blank" rel="noopener">
-          ⚡ Оплатить через СБП (открыть банк)
-        </a>
       </div>
     </div>
 
@@ -155,5 +148,5 @@
     </p>
   </div>
 </div>
-<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=37"></script>
+<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=38"></script>
 </body></html>
