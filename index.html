@@ -2,16 +2,16 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#020907"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=35">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=35">
-  <link rel="icon" type="image/svg+xml" href="icon.svg?v=35">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=35">
-  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png?v=35">
-  <link rel="shortcut icon" href="favicon.ico?v=35">
-  <link rel="manifest" href="manifest.json?v=35">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=36">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=36">
+  <link rel="icon" type="image/svg+xml" href="icon.svg?v=36">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=36">
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png?v=36">
+  <link rel="shortcut icon" href="favicon.ico?v=36">
+  <link rel="manifest" href="manifest.json?v=36">
   <title>Цифровой портал студента УПК</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=35">
+  <link rel="stylesheet" href="style.css?v=36">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body class="dark">
@@ -108,23 +108,10 @@
       <div class="donate-badge-sbp">
         <span>⚡ СБП</span>
         <span>·</span>
-        <span>МИР · Карты РФ</span>
+        <span>Система Быстрых Платежей</span>
       </div>
       <h2 id="donateModalTitle">Поддержать развитие портала</h2>
-      <p class="muted">Ваша поддержка помогает оплачивать серверы распознавания замен нейросетью и развивать новые полезные инструменты для студентов и преподавателей УПК.</p>
-    </div>
-
-    <div class="donate-amount-section">
-      <span class="donate-section-title">Выберите сумму:</span>
-      <div class="donate-presets" id="donatePresets">
-        <button type="button" class="donate-preset-btn" data-amount="100">100 ₽</button>
-        <button type="button" class="donate-preset-btn active" data-amount="250">250 ₽</button>
-        <button type="button" class="donate-preset-btn" data-amount="500">500 ₽</button>
-        <button type="button" class="donate-preset-btn" data-amount="1000">1000 ₽</button>
-      </div>
-      <div class="donate-custom-amount">
-        <input id="donateCustomAmount" type="number" min="10" max="100000" placeholder="Другая сумма, ₽" value="250">
-      </div>
+      <p class="muted">Перевод без комиссии через СБП из Т-Банка, Сбера или любого банка РФ на развитие студенческого портала УПК.</p>
     </div>
 
     <div class="donate-methods">
@@ -152,18 +139,21 @@
           </div>
         </div>
         <div class="donate-qr-wrapper">
-          <div id="donateQrCode" class="donate-qr-code"></div>
+          <div class="donate-qr-plate">
+            <div id="donateQrCode" class="donate-qr-code"></div>
+          </div>
           <small class="muted donate-qr-hint">Отсканируйте камерой телефона или в приложении банка для перевода через СБП</small>
         </div>
-        <button id="donateSbpLinkBtn" class="primary donate-action-btn" type="button">
+        <a id="donateSbpLinkBtn" class="primary donate-action-btn" href="https://t.tb.ru/pm_short/5RhXrXNW4lC" target="_blank" rel="noopener">
           ⚡ Оплатить через СБП (открыть банк)
-        </button>
-      </div></div>
+        </a>
+      </div>
+    </div>
 
     <p class="donate-footer-note muted">
-      🔒 Перевод осуществляется напрямую через Систему Быстрых Платежей Банка России или официальный банковский сервис сбора средств.
+      🔒 Перевод осуществляется напрямую на счет получателя через Систему Быстрых Платежей Банка России.
     </p>
   </div>
 </div>
-<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=35"></script>
+<footer>© 2026 Узловский политехнический колледж · Цифровой портал</footer><script src="app.js?v=36"></script>
 </body></html>
