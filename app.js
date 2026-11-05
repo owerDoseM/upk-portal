@@ -877,63 +877,112 @@ function initAiScanner() {
     }
 
     scanBtn.disabled = true;
-    statusEl.textContent = '⏳ Читаю изображения и отправляю в Gemini Vision...';
+    statusEl.textContent = '⏳ Обрабатываю изображения...';
     try {
       const base64List = await Promise.all(aiSelectedFiles.map(fileToBase64));
-      const imageParts = base64List.map(item => ({
-        inlineData: {
-          mimeType: item.mimeType,
-          data: item.data
-        }
-      }));
+      const promptText = `Ты — специализированный помощник для студенческого портала Узловского политехнического колледжа (УПК).\nПеред тобой фото официального документа "ИЗМЕНЕНИЯ В РАСПИСАНИИ" (замены).\nИзвлеки со 100% точностью:\n1. Заголовок: дата, день недели, примечание (note строго без слов в скобках).\n2. Таблицу замен: Группа, Пара (1-5), Предмет, ФИО преподавателя, Аудитория.\nЕсли пара указана диапазоном (например 1-3) — продублируй для каждой пары.\nФормат ответа строго JSON:\n{\n  "date": "05 ноября 2026 г.",\n  "day": "Чт",\n  "week_type": "над чертой",\n  "note": "Изменения на 05 ноября 2026 г",\n  "groups": {\n    "ХТ-26": [\n      ["Информатика", "Исайкина Н.А.", "207"],\n      ["История", "Талагаева Е.Л.", "302"],\n      ["Физическая культура", "Гордеева Е.В.", "ФОК"],\n      ["Литература", "Куликовская Т.В.", "306"],\n      ["", "", ""]\n    ]\n  }\n}`;
 
-      const promptText = `Ты — специализированный помощник для студенческого портала Узловского политехнического колледжа (УПК).\nПеред тобой фото официального документа "ИЗМЕНЕНИЯ В РАСПИСАНИИ" (замены).\nИзвлеки:\n1. Заголовок: дата, день недели, примечание.\n2. Таблицу замен: Группа, Пара (1-5), Предмет, ФИО преподавателя, Аудитория.\nЕсли пара указана диапазоном 1-3 — продублируй для 1, 2 и 3 пары.\nФормат ответа JSON:\n{\n  "date": "02 ноября 2026 г.",\n  "day": "Пн",\n  "week_type": "под чертой",\n  "note": "Изменения на 02 ноября 2026 г (понедельник, под чертой)",\n  "groups": {\n    "ХТ-26": [\n      ["Информатика", "Исайкина Н.А.", "207"],\n      ...5 пар\n    ]\n  }\n}`;
+      let rawText = null;
 
-      const candidateModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-lite-latest'];
-      let resJson = null;
-      let lastErr = null;
+      if (apiKey.startsWith('sk-')) {
+        // OrcaRouter (OpenAI-compatible Vision)
+        const orcaModels = [
+          'deepseek/deepseek-v4-flash-vision-exp',
+          'google/gemini-2.5-flash',
+          'google/gemini-3.5-flash',
+          'qwen/qwen3-vl-8b-instruct',
+          'openai/gpt-4o-mini'
+        ];
+        let lastErr = null;
+        for (const model of orcaModels) {
+          try {
+            statusEl.textContent = '⏳ Анализирую расписание через ' + model + '...';
+            const r = await fetch('https://api.orcarouter.ai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + apiKey,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': location.href,
+                'X-Title': 'UPK Portal'
+              },
+              body: JSON.stringify({
+                model: model,
+                messages: [
+                  {
+                    role: 'user',
+                    content: [
+                      { type: 'text', text: promptText + '\n\nОтветь СТРОГО валидным JSON.' },
+                      ...base64List.map(item => ({
+                        type: 'image_url',
+                        image_url: { url: 'data:' + item.mimeType + ';base64,' + item.data }
+                      }))
+                    ]
+                  }
+                ]
+              }),
+              signal: AbortSignal.timeout(45000)
+            });
 
-      for (const model of candidateModels) {
-        try {
-          statusEl.textContent = '⏳ Анализирую расписание через Gemini Vision (' + model + ')...';
-          const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey;
-          const r = await fetch(geminiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: promptText }, ...imageParts] }],
-              generationConfig: { responseMimeType: 'application/json' }
-            }),
-            signal: AbortSignal.timeout(30000)
-          });
-
-          if (!r.ok) {
-            const errText = await r.text();
-            if (errText.includes('User location is not supported')) {
-              throw new Error('Google Gemini API блокирует запросы из региона РФ (User location is not supported). Пожалуйста, включите VPN в браузере (Нидерланды, Германия или США) и повторите сканирование.');
-            }
-            if (r.status === 503 || r.status === 429 || r.status === 404) {
-              console.warn('Модель ' + model + ' временно перегружена (' + r.status + '), переключаюсь на следующую...');
-              lastErr = new Error('Gemini (' + r.status + '): ' + errText);
+            if (!r.ok) {
+              const errT = await r.text();
+              console.warn('Модель ' + model + ' (' + r.status + '):', errT);
+              lastErr = new Error('OrcaRouter (' + r.status + '): ' + errT);
               continue;
             }
-            throw new Error('Gemini API (' + r.status + '): ' + errText);
+
+            const data = await r.json();
+            rawText = data.choices?.[0]?.message?.content;
+            if (rawText) break;
+          } catch (e) {
+            lastErr = e;
+            console.warn('Ошибка с моделью ' + model + ':', e.message);
           }
-
-          resJson = await r.json();
-          if (resJson) break;
-        } catch (err) {
-          lastErr = err;
-          if (err.message && err.message.includes('User location is not supported')) throw err;
-          console.warn('Ошибка с моделью ' + model + ':', err.message);
         }
-      }
+        if (!rawText) throw lastErr || new Error('Не удалось получить ответ от OrcaRouter');
+      } else {
+        // Google Gemini Vision
+        const imageParts = base64List.map(item => ({
+          inlineData: { mimeType: item.mimeType, data: item.data }
+        }));
+        const candidateModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-lite-latest'];
+        let lastErr = null;
+        for (const model of candidateModels) {
+          try {
+            statusEl.textContent = '⏳ Анализирую расписание через Gemini Vision (' + model + ')...';
+            const geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey;
+            const r = await fetch(geminiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }, ...imageParts] }],
+                generationConfig: { responseMimeType: 'application/json' }
+              }),
+              signal: AbortSignal.timeout(30000)
+            });
 
-      if (!resJson) {
-        throw lastErr || new Error('Не удалось получить ответ от Gemini API');
+            if (!r.ok) {
+              const errText = await r.text();
+              if (errText.includes('User location is not supported')) {
+                throw new Error('Google Gemini API блокирует запросы из региона РФ (User location is not supported). Пожалуйста, включите VPN в браузере или используйте ключ OrcaRouter.');
+              }
+              if (r.status === 503 || r.status === 429 || r.status === 404) {
+                lastErr = new Error('Gemini (' + r.status + '): ' + errText);
+                continue;
+              }
+              throw new Error('Gemini API (' + r.status + '): ' + errText);
+            }
+
+            const resJson = await r.json();
+            rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (rawText) break;
+          } catch (err) {
+            lastErr = err;
+            if (err.message && err.message.includes('User location is not supported')) throw err;
+            console.warn('Ошибка с моделью ' + model + ':', err.message);
+          }
+        }
+        if (!rawText) throw lastErr || new Error('Не удалось получить ответ от Gemini API');
       }
-      const rawText = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) throw new Error('Пустой ответ от Gemini Vision');
       const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
       const parsed = JSON.parse(cleanJson);
       aiParsedResult = parsed;
