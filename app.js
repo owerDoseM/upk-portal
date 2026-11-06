@@ -457,7 +457,7 @@ function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'
 function initEditor(){const daySelect=$('#editorDay');daySelect.innerHTML=days.map(day=>`<option value="${day}">${day}</option>`).join('');refreshGroupOptions();editorRows()}
 function collectEditorRows(){return $$('#editorLessons .editor-lesson').map(row=>[...row.querySelectorAll('input')].map(input=>input.value.trim()))}
 function saveEditor(){const group=$('#editorGroup').value,day=$('#editorDay').value;if(!group)return;schedule[group]||(schedule[group]={});schedule[group][day]=collectEditorRows();saveCustomSchedule();refreshGroupOptions();renderSchedule();editorRows();$('#editorStatus').textContent='Изменения сохранены на этом компьютере.'}
-function addEditorGroup(){const name=prompt('Введите название новой группы:','Э-27');if(!name||!name.trim())return;const group=name.trim();if(schedule[group]){alert('Такая группа уже существует.');return}schedule[group]={};saveCustomSchedule();refreshGroupOptions();$('#editorGroup').value=group;editorRows();$('#editorStatus').textContent=`Группа ${group} добавлена.`}
+function addEditorGroup(){const name=prompt('Введите название новой группы:','Э-27');if(!name||!name.trim())return;const group=name.trim();if(schedule[group]){alert('Такая группа уже суще��твует.');return}schedule[group]={};saveCustomSchedule();refreshGroupOptions();$('#editorGroup').value=group;editorRows();$('#editorStatus').textContent=`Группа ${group} добавлена.`}
 function exportScheduleCode(){const code=`const schedule = ${JSON.stringify(schedule,null,2)};`;$('#scheduleCode').value=code;$('#scheduleCodeBox').hidden=false}
 function resetCustomSchedule(){if(!confirm('Удалить все локальные изменения расписания?'))return;localStorage.removeItem(scheduleStorageKey);schedule=JSON.parse(JSON.stringify(baseSchedule));refreshGroupOptions();renderSchedule();editorRows();$('#editorStatus').textContent='Восстановлено исходное расписание УПК.'}
 const rooms=[
@@ -944,7 +944,12 @@ function initAiScanner() {
         const imageParts = base64List.map(item => ({
           inlineData: { mimeType: item.mimeType, data: item.data }
         }));
-        const candidateModels = ['gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-flash-lite-latest'];
+        const candidateModels = [
+          'gemini-3.5-flash-lite',
+          'gemini-3.5-flash',
+          'gemini-3.8-flash',
+          'gemini-flash-lite-latest'
+        ];
         let lastErr = null;
         for (const model of candidateModels) {
           try {
