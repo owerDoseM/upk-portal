@@ -305,96 +305,36 @@ const standardPeriods = [
  {number:5,start:'15:50',firstEnd:'16:35',breakStart:'16:35',breakEnd:'16:40',end:'17:25',next:null}
 ];
 
-const specialPeriods_2026_11_03 = [
- {number:1,start:'08:30',firstEnd:'09:10',breakStart:'09:10',breakEnd:'09:15',end:'09:50',next:'10:00'},
- {number:2,start:'10:00',firstEnd:'10:40',breakStart:'10:40',breakEnd:'10:45',end:'11:20',next:'11:40'},
- {number:3,start:'11:40',firstEnd:'12:20',breakStart:'12:20',breakEnd:'12:25',end:'13:00',next:'13:10'},
- {number:4,start:'13:10',firstEnd:'13:50',breakStart:'13:50',breakEnd:'13:55',end:'14:30',next:'14:40'},
- {number:5,start:'14:40',firstEnd:'15:20',breakStart:'15:20',breakEnd:'15:25',end:'16:00',next:null}
-];
-
 const standardBellTimes = new Set(['08:30','09:15','09:20','10:05','10:15','11:00','11:05','11:50','12:20','13:05','13:10','13:55','14:05','14:50','14:55','15:40','15:50','16:35','16:40','17:25']);
-const specialBellTimes_2026_11_03 = new Set(['08:30','09:10','09:15','09:50','10:00','10:40','10:45','11:20','11:40','12:20','12:25','13:00','13:10','13:50','13:55','14:30','14:40','15:20','15:25','16:00']);
 
 let periods = standardPeriods;
-let bellScheduleMode = isNov3() ? 'nov3' : 'standard';
-let userOverrodeBellMode = false;
 
-function isNov3(date = new Date()) {
-  return date.getFullYear() === 2026 && date.getMonth() === 10 && date.getDate() === 3;
+function getActivePeriods() {
+  return standardPeriods;
 }
 
-function getActivePeriods(date = new Date()) {
-  return isNov3(date) ? specialPeriods_2026_11_03 : standardPeriods;
+function getPeriodsForDay() {
+  return standardPeriods;
 }
 
-function getPeriodsForDay(dayIndex) {
-  if (userOverrodeBellMode) {
-    return bellScheduleMode === 'nov3' ? specialPeriods_2026_11_03 : standardPeriods;
-  }
-  const isNov3Day = (dayIndex === 1 && (isNov3() || (new Date().getFullYear() === 2026 && new Date().getMonth() === 10 && new Date().getDate() === 2)));
-  return isNov3Day ? specialPeriods_2026_11_03 : standardPeriods;
-}
-
-function renderBellList(mode) {
+function renderBellList() {
   const listEl = $('#bellList');
-  const badgeEl = $('#bellModeBadge');
   const subtitleEl = $('#bellSubtitle');
-  const stdBtn = $('#bellStandardBtn');
-  const nov3Btn = $('#bellNov3Btn');
-
-  if (mode === 'nov3') {
-    if (stdBtn) { stdBtn.classList.remove('active'); stdBtn.setAttribute('aria-selected', 'false'); }
-    if (nov3Btn) { nov3Btn.classList.add('active'); nov3Btn.setAttribute('aria-selected', 'true'); }
-    if (badgeEl) { badgeEl.className = 'bell-mode-badge is-holiday'; badgeEl.textContent = '⚡ 3 ноября · Сокращённый день'; }
-    if (subtitleEl) { subtitleEl.textContent = 'Расписание звонков на 03 ноября 2026 (вторник) — пары по 40/35 мин'; }
-    if (listEl) {
-      listEl.innerHTML = '<span>1 пара <b>08:30–09:10 / 09:15–09:50</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span class="bell-break">Перемена <b>09:50–10:00</b> <small>(10 мин)</small></span>' +
-        '<span>2 пара <b>10:00–10:40 / 10:45–11:20</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span class="bell-lunch">Обед <b>11:20–11:40</b> <small>(перерыв 20 мин)</small></span>' +
-        '<span>3 пара <b>11:40–12:20 / 12:25–13:00</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span class="bell-break">Перемена <b>13:00–13:10</b> <small>(10 мин)</small></span>' +
-        '<span>4 пара <b>13:10–13:50 / 13:55–14:30</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span class="bell-break">Перемена <b>14:30–14:40</b> <small>(10 мин)</small></span>' +
-        '<span>5 пара <b>14:40–15:20 / 15:25–16:00</b> <small>(перерыв 5 мин)</small></span>';
-    }
-  } else {
-    if (nov3Btn) { nov3Btn.classList.remove('active'); nov3Btn.setAttribute('aria-selected', 'false'); }
-    if (stdBtn) { stdBtn.classList.add('active'); stdBtn.setAttribute('aria-selected', 'true'); }
-    if (badgeEl) { badgeEl.className = 'bell-mode-badge'; badgeEl.textContent = 'Стандартное расписание'; }
-    if (subtitleEl) { subtitleEl.textContent = 'Стандартное расписание звонков колледжа — пары по 45 мин'; }
-    if (listEl) {
-      listEl.innerHTML = '<span>1 пара <b>08:30–09:15 / 09:20–10:05</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span>2 пара <b>10:15–11:00 / 11:05–11:50</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span class="bell-lunch">Обед <b>11:50–12:20</b> <small>(перерыв 30 мин)</small></span>' +
-        '<span>3 пара <b>12:20–13:05 / 13:10–13:55</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span>4 пара <b>14:05–14:50 / 14:55–15:40</b> <small>(перерыв 5 мин)</small></span>' +
-        '<span>5 пара <b>15:50–16:35 / 16:40–17:25</b> <small>(перерыв 5 мин)</small></span>';
-    }
+  if (subtitleEl) { subtitleEl.textContent = 'Стандартное расписание звонков колледжа — пары по 45 мин'; }
+  if (listEl) {
+    listEl.innerHTML = '<span>1 пара <b>08:30–09:15 / 09:20–10:05</b> <small>(перерыв 5 мин)</small></span>' +
+      '<span>2 пара <b>10:15–11:00 / 11:05–11:50</b> <small>(перерыв 5 мин)</small></span>' +
+      '<span class="bell-lunch">Обед <b>11:50–12:20</b> <small>(перерыв 30 мин)</small></span>' +
+      '<span>3 пара <b>12:20–13:05 / 13:10–13:55</b> <small>(перерыв 5 мин)</small></span>' +
+      '<span>4 пара <b>14:05–14:50 / 14:55–15:40</b> <small>(перерыв 5 мин)</small></span>' +
+      '<span>5 пара <b>15:50–16:35 / 16:40–17:25</b> <small>(перерыв 5 мин)</small></span>';
   }
 }
 
 function initBellsSwitcher() {
-  const stdBtn = $('#bellStandardBtn');
-  const nov3Btn = $('#bellNov3Btn');
-  if (stdBtn) {
-    stdBtn.onclick = () => {
-      userOverrodeBellMode = true;
-      bellScheduleMode = 'standard';
-      renderBellList('standard');
-      renderSchedule();
-    };
-  }
-  if (nov3Btn) {
-    nov3Btn.onclick = () => {
-      userOverrodeBellMode = true;
-      bellScheduleMode = 'nov3';
-      renderBellList('nov3');
-      renderSchedule();
-    };
-  }
+  renderBellList();
 }
+
 function clockMinutes(value){const [hours,minutes]=value.split(':').map(Number);return hours*60+minutes}
 function minutesUntil(time,current){return Math.max(0,Math.ceil(clockMinutes(time)-current))}
 const scheduleStorageKey='upk_custom_schedule_v20';
@@ -457,7 +397,7 @@ function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'
 function initEditor(){const daySelect=$('#editorDay');daySelect.innerHTML=days.map(day=>`<option value="${day}">${day}</option>`).join('');refreshGroupOptions();editorRows()}
 function collectEditorRows(){return $$('#editorLessons .editor-lesson').map(row=>[...row.querySelectorAll('input')].map(input=>input.value.trim()))}
 function saveEditor(){const group=$('#editorGroup').value,day=$('#editorDay').value;if(!group)return;schedule[group]||(schedule[group]={});schedule[group][day]=collectEditorRows();saveCustomSchedule();refreshGroupOptions();renderSchedule();editorRows();$('#editorStatus').textContent='Изменения сохранены на этом компьютере.'}
-function addEditorGroup(){const name=prompt('Введите название новой группы:','Э-27');if(!name||!name.trim())return;const group=name.trim();if(schedule[group]){alert('Такая группа уже суще��твует.');return}schedule[group]={};saveCustomSchedule();refreshGroupOptions();$('#editorGroup').value=group;editorRows();$('#editorStatus').textContent=`Группа ${group} добавлена.`}
+function addEditorGroup(){const name=prompt('Введите название новой группы:','Э-27');if(!name||!name.trim())return;const group=name.trim();if(schedule[group]){alert('Такая группа уже суще����твует.');return}schedule[group]={};saveCustomSchedule();refreshGroupOptions();$('#editorGroup').value=group;editorRows();$('#editorStatus').textContent=`Группа ${group} добавлена.`}
 function exportScheduleCode(){const code=`const schedule = ${JSON.stringify(schedule,null,2)};`;$('#scheduleCode').value=code;$('#scheduleCodeBox').hidden=false}
 function resetCustomSchedule(){if(!confirm('Удалить все локальные изменения расписания?'))return;localStorage.removeItem(scheduleStorageKey);schedule=JSON.parse(JSON.stringify(baseSchedule));refreshGroupOptions();renderSchedule();editorRows();$('#editorStatus').textContent='Восстановлено исходное расписание УПК.'}
 const rooms=[
@@ -566,7 +506,7 @@ function clock(){
   $('#clock').textContent=d.toLocaleTimeString('ru-RU');
   $('#todayDate').textContent=d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   $('#todayDay').textContent=d.toLocaleDateString('ru-RU',{weekday:'long'});
-  if(soundEnabled&&d.getDay()!==0&&d.getSeconds()===0&&(isNov3(d) ? specialBellTimes_2026_11_03 : standardBellTimes).has(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'))&&lastBellMinute!==minuteKey){
+  if(soundEnabled&&d.getDay()!==0&&d.getSeconds()===0&&standardBellTimes.has(String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'))&&lastBellMinute!==minuteKey){
     lastBellMinute=minuteKey;
     playSchoolBell();
   }
@@ -583,18 +523,14 @@ function clock(){
     renderRooms();
   }
 }
-function renderDays(){const todayIndex=new Date().getDay()-1;$('#dayTabs').innerHTML=days.map((d,i)=>`<button class="${i===selectedDay?'active':''}" data-day="${i}">${d}${i===todayIndex?' <span class="today-marker" title="Сегодня">●</span>':''}</button>`).join('');$$('#dayTabs button').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;userOverrodeBellMode=false;focusCurrentOnRender=selectedDay===new Date().getDay()-1;renderSchedule()})}
-function selectTomorrow(){const day=new Date().getDay();selectedDay=day>=1&&day<=5?day:0;userOverrodeBellMode=false;focusCurrentOnRender=false;renderSchedule()}
+function renderDays(){const todayIndex=new Date().getDay()-1;$('#dayTabs').innerHTML=days.map((d,i)=>`<button class="${i===selectedDay?'active':''}" data-day="${i}">${d}${i===todayIndex?' <span class="today-marker" title="Сегодня">●</span>':''}</button>`).join('');$$('#dayTabs button').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;focusCurrentOnRender=selectedDay===new Date().getDay()-1;renderSchedule()})}
+function selectTomorrow(){const day=new Date().getDay();selectedDay=day>=1&&day<=5?day:0;focusCurrentOnRender=false;renderSchedule()}
 function updateTomorrowButton(){const btn=$('#tomorrowBtn');if(!btn)return;const day=new Date().getDay(),tomorrowIndex=day>=1&&day<=5?day:0;btn.hidden=selectedDay===tomorrowIndex}
 function focusRoom(room){const sectionButton=$('.nav-item[data-section="rooms"]');if(sectionButton){$$('.nav-item').forEach(button=>button.classList.remove('active'));sectionButton.classList.add('active')}$$('.section').forEach(section=>section.classList.toggle('active',section.id==='rooms'));$('#roomSearch').value=room;$('#buildingFilter').value='';renderRooms();window.scrollTo({top:0,behavior:'smooth'})}
 function renderSchedule(){
   renderDays();
   updateTomorrowButton();
-  if(!userOverrodeBellMode){
-    const isNov3Day = (selectedDay === 1 && (isNov3() || (new Date().getFullYear() === 2026 && new Date().getMonth() === 10 && new Date().getDate() === 2)));
-    bellScheduleMode = isNov3Day ? 'nov3' : 'standard';
-  }
-  renderBellList(bellScheduleMode);
+  renderBellList();
   const dayPeriods=getPeriodsForDay(selectedDay);
   const g=$('#groupSelect').value,items=(schedule[g]&&schedule[g][days[selectedDay]])||[],activeLessons=items.map((lesson,index)=>({lesson,index})).filter(item=>item.lesson[0]&&item.lesson[0]!=='—'),todayIndex=new Date().getDay()-1,now=new Date(),nowMinutes=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
   $('#scheduleGrid').innerHTML=activeLessons.length?activeLessons.map(item=>{
